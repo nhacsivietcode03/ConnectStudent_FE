@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 
 function LoginScreen() {
     return (
@@ -58,9 +59,9 @@ function LoginScreen() {
                                 Login
                             </button>
 
-                            <a className="small text-muted d-block" href="#!">
+                            <Link to='/resetpassword' className="small text-muted d-block" >
                                 Forgot password?
-                            </a>
+                            </Link>
                             <p className="mb-5 pb-lg-2" style={{ color: "#393f81" }}>
                                 Don't have an account?{" "}
                                 <a href="#!" style={{ color: "#393f81" }}>
