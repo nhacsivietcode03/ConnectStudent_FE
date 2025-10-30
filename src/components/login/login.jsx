@@ -59,14 +59,14 @@ function LoginScreen() {
                                 Login
                             </button>
 
-                            <Link to='/resetpassword' className="small text-muted d-block" >
+                            <Link to='/sendemail' className="small text-muted d-block" >
                                 Forgot password?
                             </Link>
                             <p className="mb-5 pb-lg-2" style={{ color: "#393f81" }}>
                                 Don't have an account?{" "}
-                                <a href="#!" style={{ color: "#393f81" }}>
+                                <Link to="/register" style={{ color: "#393f81" }}>
                                     Register here
-                                </a>
+                                </Link>
                             </p>
 
                             <div className="d-flex flex-row justify-content-start">
