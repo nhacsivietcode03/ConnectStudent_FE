@@ -3,7 +3,7 @@ import Header from "../reuse/header";
 function UserHomePage() {
     return (
         <div>
-            < Header/>
+            <Header />
         </div>
     );
 }

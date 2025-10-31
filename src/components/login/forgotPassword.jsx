@@ -2,31 +2,33 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-function LoginScreen() {
+function ForgotPasswordScreen() {
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
-    const { login, isAuthenticated } = useAuth();
+    const { sendOTPResetPassword } = useAuth();
     const navigate = useNavigate();
-
-    // Redirect if already logged in
-    if (isAuthenticated) {
-        navigate("/");
-        return null;
-    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setSuccess("");
         setLoading(true);
 
-        const result = await login(email, password);
+        const result = await sendOTPResetPassword(email);
 
         if (result.success) {
-            navigate("/");
+            setSuccess(result.message || "OTP has been sent to your email");
+            // Save email and otpToken for use in verify OTP step
+            localStorage.setItem("resetPasswordEmail", email);
+            localStorage.setItem("resetPasswordOtpToken", result.otpToken);
+            // Navigate to verify OTP page after 1.5 seconds
+            setTimeout(() => {
+                navigate("/verify-otp-reset");
+            }, 1500);
         } else {
-            setError(result.message || "Login failed");
+            setError(result.message || "Failed to send OTP");
         }
 
         setLoading(false);
@@ -39,7 +41,7 @@ function LoginScreen() {
                     <div className="col-md-6">
                         <img
                             src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
-                            alt="login form"
+                            alt="forgot password form"
                             className="img-fluid rounded-start w-100"
                         />
                     </div>
@@ -48,14 +50,14 @@ function LoginScreen() {
                         <div className="card-body p-4 p-lg-5 text-black">
                             <div className="d-flex flex-row mt-2 align-items-center">
                                 <i
-                                    className="fas fa-cubes fa-3x me-3"
+                                    className="fas fa-key fa-3x me-3"
                                     style={{ color: "#ff6219" }}
                                 ></i>
-                                <span className="h1 fw-bold mb-0">ConnectStudent</span>
+                                <span className="h1 fw-bold mb-0">Forgot Password</span>
                             </div>
 
                             <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: "1px" }}>
-                                Login to your account
+                                Enter your email to receive OTP code
                             </h5>
 
                             {error && (
@@ -64,10 +66,16 @@ function LoginScreen() {
                                 </div>
                             )}
 
+                            {success && (
+                                <div className="alert alert-success" role="alert">
+                                    {success}
+                                </div>
+                            )}
+
                             <form onSubmit={handleSubmit}>
                                 <div className="form-outline mb-4">
                                     <label className="form-label" htmlFor="email">
-                                        Email
+                                        Email address
                                     </label>
                                     <input
                                         type="email"
@@ -80,47 +88,19 @@ function LoginScreen() {
                                     />
                                 </div>
 
-                                <div className="form-outline mb-4">
-                                    <label className="form-label" htmlFor="password">
-                                        Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        className="form-control form-control-lg"
-                                        placeholder="Enter your password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-
                                 <button
                                     className="btn btn-dark btn-lg btn-block mb-4 px-5 w-100"
                                     type="submit"
                                     disabled={loading}
                                 >
-                                    {loading ? "Login loading..." : "Login"}
+                                    {loading ? "Sending..." : "Send OTP"}
                                 </button>
                             </form>
 
-                            <Link to='/forgot-password' className="small text-muted d-block" >
-                                Forgot password?
-                            </Link>
-                            <p className="mb-5 pb-lg-2" style={{ color: "#393f81" }}>
-                                Don't have an account?{" "}
-                                <Link to="/register" style={{ color: "#393f81" }}>
-                                    Register here
+                            <div className="text-center">
+                                <Link to="/login" className="small text-muted">
+                                    Back to Login
                                 </Link>
-                            </p>
-
-                            <div className="d-flex flex-row justify-content-start">
-                                <a href="#!" className="small text-muted me-1">
-                                    Terms of use.
-                                </a>
-                                <a href="#!" className="small text-muted">
-                                    Privacy policy
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -130,4 +110,5 @@ function LoginScreen() {
     );
 }
 
-export default LoginScreen;
+export default ForgotPasswordScreen;
+
