@@ -336,7 +336,7 @@ function UserProfile() {
         return (
             <div
                 className="min-vh-100 d-flex align-items-center justify-content-center"
-                style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
+                style={{ background: "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)" }}
             >
                 <div className="text-center">
                     <div
@@ -408,7 +408,7 @@ function UserProfile() {
                         >
                             <div
                                 style={{
-                                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                    background: "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)",
                                     padding: "3rem 2rem 2rem",
                                     position: "relative",
                                 }}
@@ -781,7 +781,7 @@ function UserProfile() {
                                                     width: "200px",
                                                     height: "200px",
                                                     objectFit: "cover",
-                                                    border: "4px solid #667eea",
+                                                    border: "4px solid #0d6efd",
                                                 }}
                                             />
                                         ) : userData.avatar ? (
@@ -793,7 +793,7 @@ function UserProfile() {
                                                     width: "200px",
                                                     height: "200px",
                                                     objectFit: "cover",
-                                                    border: "4px solid #667eea",
+                                                    border: "4px solid #0d6efd",
                                                 }}
                                             />
                                         ) : (
@@ -803,8 +803,8 @@ function UserProfile() {
                                                     width: "200px",
                                                     height: "200px",
                                                     background:
-                                                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                                    border: "4px solid #667eea",
+                                                        "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)",
+                                                    border: "4px solid #0d6efd",
                                                 }}
                                             >
                                                 <span
@@ -853,14 +853,14 @@ function UserProfile() {
                                         }}
                                         onMouseEnter={(e) => {
                                             if (!uploadingAvatar) {
-                                                e.currentTarget.style.background = "#667eea";
+                                                e.currentTarget.style.background = "#0d6efd";
                                                 e.currentTarget.style.color = "white";
                                             }
                                         }}
                                         onMouseLeave={(e) => {
                                             if (!uploadingAvatar) {
                                                 e.currentTarget.style.background = "transparent";
-                                                e.currentTarget.style.color = "#667eea";
+                                                e.currentTarget.style.color = "#0d6efd";
                                             }
                                         }}
                                     >
