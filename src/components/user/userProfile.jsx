@@ -59,7 +59,7 @@ function UserProfile() {
                     "Không thể tải thông tin người dùng. Vui lòng thử lại sau.";
                 setError(errorMessage);
                 console.error("Error fetching profile:", err);
-                // Nếu lỗi 401 (unauthorized), redirect về login
+                // Nếu lỗi 401 redirect về login
                 if (err.response?.status === 401) {
                     setTimeout(() => {
                         navigate("/login");
@@ -214,6 +214,7 @@ function UserProfile() {
         try {
             setChangingPassword(true);
             setError(null);
+            // Giả định authAPI.changePassword trả về đối tượng có thuộc tính 'success'
             const response = await authAPI.changePassword(
                 passwordData.currentPassword,
                 passwordData.newPassword
@@ -929,7 +930,7 @@ function UserProfile() {
                     onClick={handleClosePasswordModal}
                 >
                     <div
-                        className="modal-dialog modal-dialog-centered"
+                        className="modal-dialog modal-dialog-centered modal-lg"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div
@@ -1027,7 +1028,6 @@ function UserProfile() {
                                     )}
                                 </div>
 
-                                {/* Action Buttons */}
                                 <div className="d-flex gap-3">
                                     <button
                                         onClick={handleClosePasswordModal}
