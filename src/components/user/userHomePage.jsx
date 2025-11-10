@@ -28,7 +28,10 @@ function UserHomePage() {
     }
 
     return (
-        <div>
+        <div
+            className="min-vh-100"
+            style={{ background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)" }}
+        >
             <Header />
 
             <main className="max-w-2xl mx-auto mt-6 px-4">
