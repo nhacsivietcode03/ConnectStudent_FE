@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import UserHomePage from "./components/user/userHomePage";
+import HomePage from "./components/HomePage";
 import UserProfile from "./components/user/userProfile";
+import AdminHomePage from "./components/admin/adminHomePage";
 import LoginScreen from "./components/login/login";
 import RegisterScreen from "./components/login/register";
 import OTP from "./components/login/OTP";
@@ -29,6 +30,34 @@ const ProtectedRoute = ({ children }) => {
     return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+// Admin Protected Route Component
+const AdminRoute = ({ children }) => {
+    const { isAuthenticated, loading, user } = useAuth();
+
+    if (loading) {
+        return (
+            <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: "100vh" }}
+            >
+                <div className="spinner-border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return <Navigate to="/login" />;
+    }
+
+    if (user?.role !== "admin") {
+        return <Navigate to="/" />;
+    }
+
+    return children;
+};
+
 function App() {
     return (
         <Router>
@@ -39,7 +68,7 @@ function App() {
                             path="/"
                             element={
                                 <ProtectedRoute>
-                                    <UserHomePage />
+                                    <HomePage />
                                 </ProtectedRoute>
                             }
                         />
@@ -49,6 +78,14 @@ function App() {
                                 <ProtectedRoute>
                                     <UserProfile />
                                 </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin"
+                            element={
+                                <AdminRoute>
+                                    <AdminHomePage />
+                                </AdminRoute>
                             }
                         />
                         <Route path="/login" element={<LoginScreen />} />
