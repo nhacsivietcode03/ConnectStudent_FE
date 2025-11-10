@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { SocketProvider } from "./contexts/SocketContext";
 import HomePage from "./components/HomePage";
 import UserProfile from "./components/user/userProfile";
 import AdminHomePage from "./components/admin/adminHomePage";
@@ -62,8 +63,9 @@ function App() {
     return (
         <Router>
             <AuthProvider>
-                <div className="App">
-                    <Routes>
+                <SocketProvider>
+                    <div className="App">
+                        <Routes>
                         <Route
                             path="/"
                             element={
@@ -94,8 +96,9 @@ function App() {
                         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
                         <Route path="/verify-otp-reset" element={<VerifyOtpResetScreen />} />
                         <Route path="/reset-password" element={<ResetPasswordScreen />} />
-                    </Routes>
-                </div>
+                        </Routes>
+                    </div>
+                </SocketProvider>
             </AuthProvider>
         </Router>
     );

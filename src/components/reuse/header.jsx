@@ -1,10 +1,126 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
+import { Image, Dropdown } from "react-bootstrap";
+import {
+    fetchNotifications,
+    getUnreadCount,
+    markAsRead,
+    markAllAsRead,
+} from "../../api/notification.api";
 
 function Header() {
     const { isAuthenticated, user, logout } = useAuth();
+    const { socket, isConnected } = useSocket();
     const navigate = useNavigate();
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    // Load initial data
+    useEffect(() => {
+        if (isAuthenticated && user) {
+            loadNotifications();
+            loadUnreadCount();
+        }
+    }, [isAuthenticated, user]);
+
+    // Socket event listeners for realtime updates
+    useEffect(() => {
+        if (socket && isConnected) {
+            // Listen for new notifications
+            socket.on('new-notification', (notification) => {
+                setNotifications((prev) => [notification, ...prev]);
+                setUnreadCount((prev) => prev + 1);
+            });
+
+            // Listen for unread count updates
+            socket.on('unread-count-update', () => {
+                loadUnreadCount();
+            });
+
+            return () => {
+                socket.off('new-notification');
+                socket.off('unread-count-update');
+            };
+        }
+    }, [socket, isConnected]);
+
+    const loadNotifications = async () => {
+        try {
+            const { data } = await fetchNotifications();
+            setNotifications(data || []);
+        } catch (error) {
+            console.error("Failed to load notifications", error);
+        }
+    };
+
+    const loadUnreadCount = async () => {
+        try {
+            const { data } = await getUnreadCount();
+            setUnreadCount(data.count || 0);
+        } catch (error) {
+            console.error("Failed to load unread count", error);
+        }
+    };
+
+    const handleNotificationClick = async (notification) => {
+        if (!notification.read) {
+            try {
+                await markAsRead(notification._id);
+                setNotifications((prev) =>
+                    prev.map((n) =>
+                        n._id === notification._id ? { ...n, read: true } : n
+                    )
+                );
+                setUnreadCount((prev) => Math.max(0, prev - 1));
+            } catch (error) {
+                console.error("Failed to mark notification as read", error);
+            }
+        }
+        setShowDropdown(false);
+        navigate("/");
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllAsRead();
+            setNotifications((prev) =>
+                prev.map((n) => ({ ...n, read: true }))
+            );
+            setUnreadCount(0);
+        } catch (error) {
+            console.error("Failed to mark all as read", error);
+        }
+    };
+
+    const formatTimeAgo = (date) => {
+        if (!date) return "";
+        const now = new Date();
+        const then = new Date(date);
+        const diffInSeconds = Math.floor((now - then) / 1000);
+
+        if (diffInSeconds < 60) return "Vừa xong";
+        if (diffInSeconds < 3600)
+            return `${Math.floor(diffInSeconds / 60)} phút trước`;
+        if (diffInSeconds < 86400)
+            return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
+        return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+    };
+
+    const getNotificationText = (notification) => {
+        const senderName =
+            notification.sender?.username ||
+            notification.sender?.email ||
+            "Ai đó";
+        if (notification.type === "like") {
+            return `${senderName} đã thích bài viết của bạn`;
+        } else if (notification.type === "comment") {
+            return `${senderName} đã bình luận bài viết của bạn`;
+        }
+        return "Bạn có thông báo mới";
+    };
 
     const handleLogout = async () => {
         await logout();
@@ -23,18 +139,184 @@ function Header() {
                     className="btn btn-link text-white text-decoration-none p-0 border-0"
                     style={{ textDecoration: "none" }}
                 >
-                    About
+                    Group
                 </button>
                 <button
                     className="btn btn-link text-white text-decoration-none p-0 border-0"
                     style={{ textDecoration: "none" }}
                 >
-                    Contact
+                    Friends
                 </button>
             </nav>
 
             {isAuthenticated && user ? (
                 <div className="d-flex align-items-center gap-3">
+                    {/* Notification Bell */}
+                    <Dropdown
+                        show={showDropdown}
+                        onToggle={(isOpen) => {
+                            setShowDropdown(isOpen);
+                            if (isOpen) {
+                                loadNotifications();
+                            }
+                        }}
+                    >
+                        <Dropdown.Toggle
+                            as="div"
+                            style={{
+                                cursor: "pointer",
+                                position: "relative",
+                                padding: "8px",
+                            }}
+                        >
+                            <i
+                                className="bi bi-bell-fill text-white"
+                                style={{ fontSize: "1.5rem" }}
+                            ></i>
+                            {unreadCount > 0 && (
+                                <span
+                                    className="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle"
+                                    style={{
+                                        fontSize: "0.7rem",
+                                        minWidth: "18px",
+                                        height: "18px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
+                                >
+                                    {unreadCount > 9 ? "9+" : unreadCount}
+                                </span>
+                            )}
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu
+                            style={{
+                                width: "350px",
+                                maxHeight: "500px",
+                                overflowY: "auto",
+                            }}
+                            align="end"
+                        >
+                            <div className="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                                <h6 className="mb-0 fw-bold">Thông báo</h6>
+                                {unreadCount > 0 && (
+                                    <button
+                                        className="btn btn-link btn-sm p-0 text-primary"
+                                        onClick={handleMarkAllAsRead}
+                                        style={{ fontSize: "0.85rem" }}
+                                    >
+                                        Đánh dấu tất cả đã đọc
+                                    </button>
+                                )}
+                            </div>
+                            {notifications.length === 0 ? (
+                                <div className="text-center py-4 text-muted">
+                                    <i
+                                        className="bi bi-bell-slash"
+                                        style={{ fontSize: "2rem" }}
+                                    ></i>
+                                    <p className="mt-2 mb-0">Chưa có thông báo</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {notifications.map((notification) => (
+                                        <Dropdown.Item
+                                            key={notification._id}
+                                            onClick={() =>
+                                                handleNotificationClick(notification)
+                                            }
+                                            style={{
+                                                backgroundColor: notification.read
+                                                    ? "white"
+                                                    : "#e7f3ff",
+                                                padding: "12px",
+                                                borderBottom: "1px solid #f0f0f0",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.backgroundColor =
+                                                    notification.read
+                                                        ? "#f8f9fa"
+                                                        : "#d0e7ff";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.backgroundColor =
+                                                    notification.read
+                                                        ? "white"
+                                                        : "#e7f3ff";
+                                            }}
+                                        >
+                                            <div className="d-flex gap-2">
+                                                {notification.sender?.avatar ? (
+                                                    <Image
+                                                        src={notification.sender.avatar}
+                                                        roundedCircle
+                                                        width={40}
+                                                        height={40}
+                                                        style={{
+                                                            objectFit: "cover",
+                                                            flexShrink: 0,
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                        style={{
+                                                            width: 40,
+                                                            height: 40,
+                                                            flexShrink: 0,
+                                                        }}
+                                                    >
+                                                        {(
+                                                            notification.sender
+                                                                ?.username?.charAt(0) ||
+                                                            notification.sender
+                                                                ?.email?.charAt(0) ||
+                                                            "U"
+                                                        ).toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="flex-grow-1">
+                                                    <div
+                                                        className="d-flex justify-content-between align-items-start"
+                                                        style={{ fontSize: "0.9rem" }}
+                                                    >
+                                                        <div>
+                                                            <div className="fw-semibold">
+                                                                {getNotificationText(
+                                                                    notification
+                                                                )}
+                                                            </div>
+                                                            <div
+                                                                className="text-muted"
+                                                                style={{ fontSize: "0.8rem" }}
+                                                            >
+                                                                {formatTimeAgo(
+                                                                    notification.createdAt
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        {!notification.read && (
+                                                            <span
+                                                                className="badge bg-primary rounded-circle"
+                                                                style={{
+                                                                    width: "8px",
+                                                                    height: "8px",
+                                                                    flexShrink: 0,
+                                                                    marginTop: "4px",
+                                                                }}
+                                                            ></span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Dropdown.Item>
+                                    ))}
+                                </>
+                            )}
+                        </Dropdown.Menu>
+                    </Dropdown>
+
                     <div
                         className="d-flex align-items-center gap-2"
                         style={{ cursor: "pointer" }}
@@ -67,7 +349,9 @@ function Header() {
                                     fontSize: "1.2rem",
                                 }}
                             >
-                                {(user.username || user.email || "U").charAt(0).toUpperCase()}
+                                {(user.username || user.email || "U")
+                                    .charAt(0)
+                                    .toUpperCase()}
                             </div>
                         )}
                         <span className="text-white">
