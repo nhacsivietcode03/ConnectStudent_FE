@@ -1,148 +1,161 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import Header from "../reuse/header";
-import { useAuth } from "../../contexts/AuthContext";
+import {
+    Button,
+    Card,
+    Container,
+    Form,
+    InputGroup,
+    Image,
+} from "react-bootstrap";
 
 function UserHomePage() {
-    const navigate = useNavigate();
-    const { user } = useAuth();
+    // Sample user posts (replace with API data later)
+    const [posts, setPosts] = useState([
+        {
+            id: 1,
+            user: { name: "Anna Nguyen", avatar: "https://i.pravatar.cc/50?img=1" },
+            content: "Just finished my final project! 🎉",
+            image: "https://picsum.photos/600/300?random=1",
+            likes: 4,
+            comments: ["Congrats!", "So proud of you!"],
+            shares: 2,
+            time: "2h ago",
+        },
+        {
+            id: 2,
+            user: { name: "John Tran", avatar: "https://i.pravatar.cc/50?img=3" },
+            content: "Coffee time ☕ Anyone joining?",
+            image: "",
+            likes: 10,
+            comments: ["Let's go!", "Too far 😅"],
+            shares: 1,
+            time: "4h ago",
+        },
+    ]);
+
+    const [commentInput, setCommentInput] = useState({});
+
+    // Like button
+    const handleLike = (id) => {
+        setPosts(
+            posts.map((p) => (p.id === id ? { ...p, likes: p.likes + 1 } : p))
+        );
+    };
+
+    // Comment button
+    const handleComment = (id) => {
+        if (!commentInput[id]?.trim()) return;
+        setPosts(
+            posts.map((p) =>
+                p.id === id
+                    ? { ...p, comments: [...p.comments, commentInput[id]] }
+                    : p
+            )
+        );
+        setCommentInput({ ...commentInput, [id]: "" });
+    };
+
+    // Share button
+    const handleShare = (id) => {
+        setPosts(
+            posts.map((p) => (p.id === id ? { ...p, shares: p.shares + 1 } : p))
+        );
+        alert("Post shared successfully!");
+    };
 
     return (
-        <div
-            className="min-vh-100"
-            style={{ background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)" }}
-        >
+        <div>
             <Header />
-            <main className="container py-5">
-                <div className="row justify-content-center">
-                    <div className="col-lg-10">
-                        {/* Welcome Section */}
-                        <div
-                            className="card shadow-lg mb-4"
-                            style={{ borderRadius: "20px", border: "none", overflow: "hidden" }}
-                        >
-                            <div
-                                style={{
-                                    background: "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)",
-                                    padding: "3rem 2rem",
-                                }}
-                            >
-                                <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-4">
-                                    <div className="d-flex align-items-center gap-4">
-                                        <div
-                                            className="rounded-circle d-flex align-items-center justify-content-center shadow-lg"
-                                            style={{
-                                                width: "100px",
-                                                height: "100px",
-                                                background: "white",
-                                                border: "5px solid white",
-                                                overflow: "hidden",
-                                                cursor: "pointer",
-                                                transition: "transform 0.3s ease",
-                                            }}
-                                            onClick={() => navigate("/profile")}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.transform = "scale(1.1)";
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.transform = "scale(1)";
-                                            }}
-                                        >
-                                            {user?.avatar ? (
-                                                <img
-                                                    src={user.avatar}
-                                                    alt="Avatar"
-                                                    className="rounded-circle"
-                                                    style={{
-                                                        width: "100%",
-                                                        height: "100%",
-                                                        objectFit: "cover",
-                                                    }}
-                                                />
-                                            ) : (
-                                                <span
-                                                    className="text-primary fw-bold"
-                                                    style={{ fontSize: "2.5rem" }}
-                                                >
-                                                    {(user?.username || user?.email || "U")
-                                                        .charAt(0)
-                                                        .toUpperCase()}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="text-white text-center text-md-start">
-                                            <h2
-                                                className="mb-2 fw-bold"
-                                                style={{ fontSize: "2rem" }}
-                                            >
-                                                Chào mừng trở lại!
-                                            </h2>
-                                            <p
-                                                className="mb-0"
-                                                style={{ opacity: 0.9, fontSize: "1.2rem" }}
-                                            >
-                                                <strong>
-                                                    {user?.username || user?.email || "Người dùng"}
-                                                </strong>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => navigate("/profile")}
-                                        className="btn btn-light fw-semibold px-4 py-2"
-                                        style={{
-                                            borderRadius: "12px",
-                                            border: "none",
-                                            fontSize: "1rem",
-                                            transition: "all 0.3s ease",
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = "#f8f9fa";
-                                            e.currentTarget.style.transform = "translateY(-2px)";
-                                            e.currentTarget.style.boxShadow =
-                                                "0 4px 8px rgba(0,0,0,0.2)";
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = "white";
-                                            e.currentTarget.style.transform = "translateY(0)";
-                                            e.currentTarget.style.boxShadow = "none";
-                                        }}
-                                    >
-                                        <i className="bi bi-person-circle me-2"></i>
-                                        Xem hồ sơ
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Quick Actions or Content */}
-                        <div
-                            className="card shadow-lg"
-                            style={{ borderRadius: "20px", border: "none" }}
-                        >
-                            <div className="card-body p-4 p-md-5">
-                                <h4 className="mb-4 fw-bold text-primary">
-                                    <i className="bi bi-house-door me-2"></i>
-                                    Trang chủ
-                                </h4>
-                                <p className="text-muted">
-                                    Chào mừng bạn đến với ConnectStudent! Đây là trang chủ của bạn.
-                                </p>
-                                <div className="d-flex gap-3 mt-4">
-                                    <button
-                                        onClick={() => navigate("/profile")}
-                                        className="btn btn-primary px-4 py-2 fw-semibold"
-                                        style={{ borderRadius: "10px" }}
-                                    >
-                                        <i className="bi bi-person-gear me-2"></i>
-                                        Quản lý hồ sơ
-                                    </button>
+            <Container className="my-4" style={{ maxWidth: "800px" }}>
+ 
+                {posts.map((post) => (
+                    <Card key={post.id} className="mb-4 shadow-sm">
+                        <Card.Body>
+                            {/* User Info */}
+                            <div className="d-flex align-items-center mb-2">
+                                <Image
+                                    src={post.user.avatar}
+                                    roundedCircle
+                                    width={40}
+                                    height={40}
+                                    className="me-2"
+                                />
+                                <div>
+                                    <strong>{post.user.name}</strong>
+                                    <div className="text-muted" style={{ fontSize: "0.85rem" }}>
+                                        {post.time}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+
+                            {/* Post Content */}
+                            <Card.Text className="mt-2">{post.content}</Card.Text>
+                            {post.image && (
+                                <img
+                                    src={post.image}
+                                    alt="post"
+                                    className="rounded w-100 my-2"
+                                />
+                            )}
+
+                            {/* Interaction Buttons */}
+                            <div className="d-flex gap-3 mt-3">
+                                <Button
+                                    size="sm"
+                                    variant="outline-primary"
+                                    onClick={() => handleLike(post.id)}
+                                >
+                                    👍 {post.likes}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline-secondary"
+                                    onClick={() => handleShare(post.id)}
+                                >
+                                    🔁 {post.shares}
+                                </Button>
+                            </div>
+
+                            {/* Comments */}
+                            <div className="mt-3">
+                                <Form.Control
+                                    size="sm"
+                                    type="text"
+                                    placeholder="Write a comment..."
+                                    value={commentInput[post.id] || ""}
+                                    onChange={(e) =>
+                                        setCommentInput({
+                                            ...commentInput,
+                                            [post.id]: e.target.value,
+                                        })
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            handleComment(post.id);
+                                        }
+                                    }}
+                                />
+                                {post.comments.length > 0 && (
+                                    <ul className="mt-2 list-unstyled">
+                                        {post.comments.map((c, i) => (
+                                            <li
+                                                key={i}
+                                                className="border p-2 rounded mb-1 bg-light"
+                                                style={{ fontSize: "0.9rem" }}
+                                            >
+                                                {c}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        </Card.Body>
+                    </Card>
+                ))}
+            </Container>
         </div>
     );
 }
