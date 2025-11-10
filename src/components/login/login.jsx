@@ -51,7 +51,9 @@ function LoginScreen() {
                                     className="fas fa-cubes fa-3x me-3"
                                     style={{ color: "#ff6219" }}
                                 ></i>
-                                <span className="h1 fw-bold mb-0">ConnectStudent</span>
+                                <span className="h1 fw-bold mb-0" style={{ color: "#0d6efd" }}>
+                                    ConnectStudent
+                                </span>
                             </div>
 
                             <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: "1px" }}>
@@ -96,15 +98,16 @@ function LoginScreen() {
                                 </div>
 
                                 <button
-                                    className="btn btn-dark btn-lg btn-block mb-4 px-5 w-100"
+                                    className="btn btn-primary btn-lg btn-block mb-4 px-5 w-100"
                                     type="submit"
                                     disabled={loading}
+                                    style={{ backgroundColor: "#0d6efd", borderColor: "#0d6efd" }}
                                 >
                                     {loading ? "Login loading..." : "Login"}
                                 </button>
                             </form>
 
-                            <Link to='/forgot-password' className="small text-muted d-block" >
+                            <Link to="/forgot-password" className="small text-muted d-block">
                                 Forgot password?
                             </Link>
                             <p className="mb-5 pb-lg-2" style={{ color: "#393f81" }}>
