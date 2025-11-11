@@ -116,10 +116,9 @@ function UserProfile() {
                 setSuccessMsg("Cập nhật thông tin thành công!");
             }
         } catch (err) {
-            setError(
-                err.response?.data?.message || "Không thể cập nhật thông tin. Vui lòng thử lại sau."
-            );
-            console.error("Error updating profile:", err);
+            const errorMessage = err.response?.data?.message || "Không thể cập nhật thông tin. Vui lòng thử lại sau.";
+            setError(errorMessage);
+            alert(errorMessage);
         } finally {
             setLoading(false);
             setFieldErrors({});
@@ -231,10 +230,9 @@ function UserProfile() {
                 setPasswordErrors({});
             }
         } catch (err) {
-            setError(
-                err.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng thử lại sau."
-            );
-            console.error("Error changing password:", err);
+            const errorMessage = err.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng thử lại sau.";
+            setError(errorMessage);
+            alert(errorMessage);
         } finally {
             setChangingPassword(false);
         }
@@ -310,10 +308,9 @@ function UserProfile() {
                 setSelectedFile(null);
             }
         } catch (err) {
-            setError(
-                err.response?.data?.message || "Không thể upload avatar. Vui lòng thử lại sau."
-            );
-            console.error("Error uploading avatar:", err);
+            const errorMessage = err.response?.data?.message || "Không thể upload avatar. Vui lòng thử lại sau.";
+            setError(errorMessage);
+            alert(errorMessage);
         } finally {
             setUploadingAvatar(false);
         }
@@ -496,11 +493,11 @@ function UserProfile() {
                                                 Thành viên từ{" "}
                                                 {userData.createdAt
                                                     ? new Date(
-                                                          userData.createdAt
-                                                      ).toLocaleDateString("vi-VN", {
-                                                          month: "long",
-                                                          year: "numeric",
-                                                      })
+                                                        userData.createdAt
+                                                    ).toLocaleDateString("vi-VN", {
+                                                        month: "long",
+                                                        year: "numeric",
+                                                    })
                                                     : "N/A"}
                                             </p>
                                         </div>
@@ -519,15 +516,13 @@ function UserProfile() {
                                         </button>
                                         <button
                                             onClick={handleEdit}
-                                            className={`btn fw-semibold ${
-                                                isEditing ? "btn-secondary" : "btn-warning"
-                                            }`}
+                                            className={`btn fw-semibold ${isEditing ? "btn-secondary" : "btn-warning"
+                                                }`}
                                             style={{ borderRadius: "10px", border: "none" }}
                                         >
                                             <i
-                                                className={`bi ${
-                                                    isEditing ? "bi-x-circle" : "bi-pencil"
-                                                } me-2`}
+                                                className={`bi ${isEditing ? "bi-x-circle" : "bi-pencil"
+                                                    } me-2`}
                                             ></i>
                                             {isEditing ? "Hủy" : "Chỉnh sửa"}
                                         </button>
@@ -560,18 +555,17 @@ function UserProfile() {
                                         <>
                                             <input
                                                 type="text"
-                                                className={`form-control form-control-lg ${
-                                                    fieldErrors.username ? "is-invalid" : ""
-                                                }`}
+                                                className={`form-control form-control-lg ${fieldErrors.username ? "is-invalid" : ""
+                                                    }`}
                                                 style={{ borderRadius: "10px", borderWidth: "2px" }}
                                                 value={editData?.username || ""}
                                                 onChange={(e) => {
                                                     setEditData((editData) =>
                                                         editData
                                                             ? {
-                                                                  ...editData,
-                                                                  username: e.target.value,
-                                                              }
+                                                                ...editData,
+                                                                username: e.target.value,
+                                                            }
                                                             : null
                                                     );
                                                     setFieldErrors((errors) => ({
@@ -962,9 +956,8 @@ function UserProfile() {
                                     <input
                                         type="password"
                                         name="currentPassword"
-                                        className={`form-control form-control-lg ${
-                                            passwordErrors.currentPassword ? "is-invalid" : ""
-                                        }`}
+                                        className={`form-control form-control-lg ${passwordErrors.currentPassword ? "is-invalid" : ""
+                                            }`}
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.currentPassword}
                                         onChange={handlePasswordChange}
@@ -987,9 +980,8 @@ function UserProfile() {
                                     <input
                                         type="password"
                                         name="newPassword"
-                                        className={`form-control form-control-lg ${
-                                            passwordErrors.newPassword ? "is-invalid" : ""
-                                        }`}
+                                        className={`form-control form-control-lg ${passwordErrors.newPassword ? "is-invalid" : ""
+                                            }`}
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.newPassword}
                                         onChange={handlePasswordChange}
@@ -1012,9 +1004,8 @@ function UserProfile() {
                                     <input
                                         type="password"
                                         name="confirmPassword"
-                                        className={`form-control form-control-lg ${
-                                            passwordErrors.confirmPassword ? "is-invalid" : ""
-                                        }`}
+                                        className={`form-control form-control-lg ${passwordErrors.confirmPassword ? "is-invalid" : ""
+                                            }`}
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.confirmPassword}
                                         onChange={handlePasswordChange}

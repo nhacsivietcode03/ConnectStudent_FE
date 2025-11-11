@@ -129,25 +129,39 @@ function Header() {
 
     return (
         <header className="d-flex align-items-center justify-content-between px-4 py-3 bg-primary text-white shadow">
-            <h1 className="fs-3 fw-bold mb-0">UniConnect</h1>
+            <h1
+                className="fs-3 fw-bold mb-0"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                    if (user?.role === "admin") {
+                        navigate("/admin");
+                    } else {
+                        navigate("/");
+                    }
+                }}
+            >
+                UniConnect
+            </h1>
 
-            <nav className="d-flex gap-4">
-                <Link to="/" className="text-white text-decoration-none">
-                    Home
-                </Link>
-                <button
-                    className="btn btn-link text-white text-decoration-none p-0 border-0"
-                    style={{ textDecoration: "none" }}
-                >
-                    Group
-                </button>
-                <button
-                    className="btn btn-link text-white text-decoration-none p-0 border-0"
-                    style={{ textDecoration: "none" }}
-                >
-                    Friends
-                </button>
-            </nav>
+            {user?.role !== "admin" && (
+                <nav className="d-flex gap-4">
+                    <Link to="/" className="text-white text-decoration-none">
+                        Home
+                    </Link>
+                    <button
+                        className="btn btn-link text-white text-decoration-none p-0 border-0"
+                        style={{ textDecoration: "none" }}
+                    >
+                        Group
+                    </button>
+                    <button
+                        className="btn btn-link text-white text-decoration-none p-0 border-0"
+                        style={{ textDecoration: "none" }}
+                    >
+                        Friends
+                    </button>
+                </nav>
+            )}
 
             {isAuthenticated && user ? (
                 <div className="d-flex align-items-center gap-3">

@@ -84,7 +84,8 @@ function Post() {
             setPosts((prev) => [data, ...prev]);
             resetCreateForm();
         } catch (error) {
-            console.error("Failed to create post", error);
+            const errorMessage = error.response?.data?.message || error.message || "Không thể đăng bài";
+            alert(errorMessage);
         } finally {
             setCreating(false);
         }
@@ -111,7 +112,8 @@ function Post() {
             setPosts((prev) => prev.map((p) => (p._id === data._id ? data : p)));
             resetEditForm();
         } catch (error) {
-            console.error("Failed to update post", error);
+            const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bài viết";
+            alert(errorMessage);
         }
     };
 
@@ -121,7 +123,8 @@ function Post() {
             await deletePost(postId);
             setPosts((prev) => prev.filter((p) => p._id !== postId));
         } catch (error) {
-            console.error("Failed to delete post", error);
+            const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bài viết";
+            alert(errorMessage);
         }
     };
 
@@ -139,7 +142,8 @@ function Post() {
             );
             setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
         } catch (error) {
-            console.error("Failed to create comment", error);
+            const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
+            alert(errorMessage);
         }
     };
 
@@ -150,16 +154,17 @@ function Post() {
                 prev.map((post) =>
                     post._id === postId
                         ? {
-                              ...post,
-                              comments: post.comments.filter(
-                                  (c) => c._id !== commentId
-                              ),
-                          }
+                            ...post,
+                            comments: post.comments.filter(
+                                (c) => c._id !== commentId
+                            ),
+                        }
                         : post
                 )
             );
         } catch (error) {
-            console.error("Failed to delete comment", error);
+            const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bình luận";
+            alert(errorMessage);
         }
     };
 
@@ -170,7 +175,8 @@ function Post() {
                 prev.map((post) => (post._id === postId ? data : post))
             );
         } catch (error) {
-            console.error("Failed to toggle like", error);
+            const errorMessage = error.response?.data?.message || error.message || "Không thể thích bài viết";
+            alert(errorMessage);
         }
     };
 
@@ -232,8 +238,8 @@ function Post() {
                                         const next = e.target.checked
                                             ? [...editKeepMedia, item.publicId]
                                             : editKeepMedia.filter(
-                                                  (id) => id !== item.publicId
-                                              );
+                                                (id) => id !== item.publicId
+                                            );
                                         setEditKeepMedia(next);
                                     }}
                                 />
@@ -403,7 +409,7 @@ function Post() {
                                 <>
                                     <Card.Text className="mt-3">{post.content}</Card.Text>
                                     {renderMedia(post.media)}
-                                    
+
                                     {/* Like Button and Count */}
                                     <div className="mt-3 d-flex align-items-center gap-3">
                                         <Button
@@ -547,21 +553,21 @@ function Post() {
                                                             </div>
                                                             {(comment.author?._id === user?._id ||
                                                                 owner) && (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="link"
-                                                                    className="text-danger p-0"
-                                                                    style={{ fontSize: "0.85rem" }}
-                                                                    onClick={() =>
-                                                                        handleDeleteComment(
-                                                                            post._id,
-                                                                            comment._id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    Xóa
-                                                                </Button>
-                                                            )}
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="link"
+                                                                        className="text-danger p-0"
+                                                                        style={{ fontSize: "0.85rem" }}
+                                                                        onClick={() =>
+                                                                            handleDeleteComment(
+                                                                                post._id,
+                                                                                comment._id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Xóa
+                                                                    </Button>
+                                                                )}
                                                         </div>
                                                         <div style={{ fontSize: "0.9rem" }}>
                                                             {comment.content}
