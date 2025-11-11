@@ -6,9 +6,11 @@ import { authAPI } from "../../api/auth.api";
 import Header from "../reuse/header";
 import { Image } from "react-bootstrap";
 import { fetchPosts, createPost, updatePost, deletePost, createComment } from "../../api/post.api";
+import { useAuth } from "../../contexts/AuthContext";
 
 function UserProfile() {
     const navigate = useNavigate();
+    const { user, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -329,6 +331,16 @@ function UserProfile() {
                 setIsEditing(false);
                 setEditData(null);
                 setSuccessMsg("Cập nhật thông tin thành công!");
+                // Sync AuthContext and localStorage so Header updates immediately
+                const nextUser = {
+                    ...(user || {}),
+                    username: editData.username,
+                    email: editData.email,
+                    major: editData.major || "",
+                    avatar: editData.avatar || "",
+                    bio: editData.bio || ""
+                };
+                updateUser(nextUser);
             }
         } catch (err) {
             const errorMessage = err.response?.data?.message || "Không thể cập nhật thông tin. Vui lòng thử lại sau.";
