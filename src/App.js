@@ -10,6 +10,7 @@ import OTP from "./components/login/OTP";
 import ForgotPasswordScreen from "./components/login/forgotPassword";
 import VerifyOtpResetScreen from "./components/login/verifyOtpReset";
 import ResetPasswordScreen from "./components/login/resetPassword";
+import PostDetailPage from "./components/user/PostDetailPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -96,6 +97,14 @@ function App() {
                         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
                         <Route path="/verify-otp-reset" element={<VerifyOtpResetScreen />} />
                         <Route path="/reset-password" element={<ResetPasswordScreen />} />
+						<Route
+							path="/posts/:id"
+							element={
+								<ProtectedRoute>
+									<PostDetailPage />
+								</ProtectedRoute>
+							}
+						/>
                         </Routes>
                     </div>
                 </SocketProvider>

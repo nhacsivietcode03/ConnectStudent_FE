@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, Form, Image, Spinner, Modal } from "react-bootstrap";
+import PostDetail from "./PostDetail";
 import { useAuth } from "../../contexts/AuthContext";
 import {
     fetchPosts,
@@ -37,6 +38,8 @@ function Post() {
     const [editKeepMedia, setEditKeepMedia] = useState([]);
     const [showLikesModal, setShowLikesModal] = useState(false);
     const [selectedPostLikes, setSelectedPostLikes] = useState([]);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [selectedPostId, setSelectedPostId] = useState(null);
     const fileInputRef = useRef(null);
     const editFileInputRef = useRef(null);
 
@@ -183,6 +186,11 @@ function Post() {
     const handleShowLikes = (post) => {
         setSelectedPostLikes(post.likes || []);
         setShowLikesModal(true);
+    };
+
+    const openPostDetail = (postId) => {
+        setSelectedPostId(postId);
+        setShowDetailModal(true);
     };
 
     const isOwner = useMemo(() => {
@@ -421,6 +429,15 @@ function Post() {
                                             <span className="me-1">👍</span>
                                             Thích
                                         </Button>
+                                        <Button
+                                            variant="outline-secondary"
+                                            size="sm"
+                                            onClick={() => openPostDetail(post._id)}
+                                            style={{ borderRadius: "20px" }}
+                                        >
+                                            <span className="me-1">💬</span>
+                                            Bình luận
+                                        </Button>
                                         {post.likes?.length > 0 && (
                                             <span
                                                 className="text-primary"
@@ -653,6 +670,15 @@ function Post() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {/* Post Detail Modal */}
+            {showDetailModal && selectedPostId && (
+                <PostDetail
+                    postId={selectedPostId}
+                    show={showDetailModal}
+                    onHide={() => setShowDetailModal(false)}
+                />
+            )}
         </div>
     );
 }

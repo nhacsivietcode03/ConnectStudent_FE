@@ -95,6 +95,15 @@ function Header() {
         }
     };
 
+	const goToPostFromNotification = (notification) => {
+		const postId = notification?.post?._id || notification?.post;
+		if (postId) {
+			navigate(`/posts/${postId}`);
+		} else {
+			navigate("/");
+		}
+	};
+
     const formatTimeAgo = (date) => {
         if (!date) return "";
         const now = new Date();
@@ -238,7 +247,10 @@ function Header() {
                                         <Dropdown.Item
                                             key={notification._id}
                                             onClick={() =>
-                                                handleNotificationClick(notification)
+												{
+													handleNotificationClick(notification);
+													goToPostFromNotification(notification);
+												}
                                             }
                                             style={{
                                                 backgroundColor: notification.read

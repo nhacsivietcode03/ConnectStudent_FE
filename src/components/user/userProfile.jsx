@@ -4,6 +4,8 @@ import client from "../../api/client";
 import { userAPI } from "../../api/user.api";
 import { authAPI } from "../../api/auth.api";
 import Header from "../reuse/header";
+import { Image } from "react-bootstrap";
+import { fetchPosts, createPost, updatePost, deletePost } from "../../api/post.api";
 
 function UserProfile() {
     const navigate = useNavigate();
@@ -34,6 +36,21 @@ function UserProfile() {
     const [passwordErrors, setPasswordErrors] = useState({});
     const [changingPassword, setChangingPassword] = useState(false);
 
+    // My posts
+    const [userId, setUserId] = useState(null);
+    const [myPosts, setMyPosts] = useState([]);
+    const [loadingMyPosts, setLoadingMyPosts] = useState(true);
+    // Post create/edit
+    const [creating, setCreating] = useState(false);
+    const [newContent, setNewContent] = useState("");
+    const [newFiles, setNewFiles] = useState([]);
+    const [editingPostId, setEditingPostId] = useState(null);
+    const [editContent, setEditContent] = useState("");
+    const [editFiles, setEditFiles] = useState([]);
+    const [editKeepMedia, setEditKeepMedia] = useState([]);
+    const fileInputRef = React.useRef(null);
+    const editFileInputRef = React.useRef(null);
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -42,6 +59,7 @@ function UserProfile() {
                 const response = await client.get("/auth/me");
                 if (response.data.success) {
                     const profileData = response.data.data;
+                    setUserId(profileData._id);
                     setUserData({
                         username: profileData.username || "",
                         email: profileData.email || "",
@@ -73,6 +91,202 @@ function UserProfile() {
         fetchProfile();
     }, [navigate]);
 
+    useEffect(() => {
+        const loadMyPosts = async () => {
+            try {
+                setLoadingMyPosts(true);
+                const { data } = await fetchPosts();
+                const mine = (data || []).filter((p) => p.author?._id === userId);
+                setMyPosts(mine);
+            } catch (err) {
+                console.error("Failed to load posts", err);
+            } finally {
+                setLoadingMyPosts(false);
+            }
+        };
+        if (userId) {
+            loadMyPosts();
+        }
+    }, [userId]);
+
+    const renderMedia = (media = []) => {
+        if (!media.length) return null;
+        return (
+            <div className="mt-2 d-flex flex-column gap-2">
+                {media.map((item) => (
+                    <div key={item.publicId}>
+                        {item.resourceType === "video" ? (
+                            <video
+                                controls
+                                style={{ width: "100%", borderRadius: "8px" }}
+                                src={item.url}
+                            />
+                        ) : (
+                            <img
+                                src={item.url}
+                                alt="post-media"
+                                style={{ width: "100%", borderRadius: "8px" }}
+                            />
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const renderEditMedia = (post) => {
+        return (
+            <div className="mb-3">
+                <div className="fw-semibold mb-1">Ảnh/Video hiện có</div>
+                <div className="d-flex flex-wrap gap-3">
+                    {post.media?.map((item) => {
+                        const checked = editKeepMedia.includes(item.publicId);
+                        return (
+                            <div
+                                key={item.publicId}
+                                className="border rounded p-2 position-relative"
+                                style={{ width: 140 }}
+                            >
+                                <div className="form-check mb-2">
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        id={`${post._id}-${item.publicId}`}
+                                        checked={checked}
+                                        onChange={(e) => {
+                                            const next = e.target.checked
+                                                ? [...editKeepMedia, item.publicId]
+                                                : editKeepMedia.filter((id) => id !== item.publicId);
+                                            setEditKeepMedia(next);
+                                        }}
+                                    />
+                                    <label className="form-check-label" htmlFor={`${post._id}-${item.publicId}`}>
+                                        Giữ lại
+                                    </label>
+                                </div>
+                                {item.resourceType === "video" ? (
+                                    <video src={item.url} style={{ width: "100%", borderRadius: "6px" }} controls />
+                                ) : (
+                                    <img
+                                        src={item.url}
+                                        alt="media"
+                                        style={{
+                                            width: "100%",
+                                            borderRadius: "6px",
+                                            objectFit: "cover",
+                                            aspectRatio: "1/1",
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
+    const renderNewFilesPreview = (files, setFiles) => {
+        if (!files.length) return null;
+        return (
+            <div className="mt-2 d-flex flex-column gap-2">
+                <div className="fw-semibold">Tệp đính kèm mới</div>
+                <ul className="list-unstyled mb-0">
+                    {files.map((file, idx) => (
+                        <li
+                            key={`${file.name}-${idx}`}
+                            className="d-flex justify-content-between align-items-center border rounded px-2 py-1 mb-1"
+                        >
+                            <span className="text-truncate" style={{ maxWidth: 260 }}>
+                                {file.name}
+                            </span>
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => setFiles((prev) => prev.filter((_, index) => index !== idx))}
+                            >
+                                Xóa
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
+    };
+
+    const resetCreateForm = () => {
+        setNewContent("");
+        setNewFiles([]);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    const resetEditForm = () => {
+        setEditingPostId(null);
+        setEditContent("");
+        setEditFiles([]);
+        setEditKeepMedia([]);
+        if (editFileInputRef.current) {
+            editFileInputRef.current.value = "";
+        }
+    };
+
+    const handleCreatePost = async (e) => {
+        e.preventDefault();
+        if (!newContent.trim() && newFiles.length === 0) return;
+        setCreating(true);
+        const formData = new FormData();
+        formData.append("content", newContent);
+        newFiles.forEach((file) => formData.append("media", file));
+        try {
+            const { data } = await createPost(formData);
+            setMyPosts((prev) => [data, ...prev]);
+            resetCreateForm();
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Không thể đăng bài";
+            alert(errorMessage);
+        } finally {
+            setCreating(false);
+        }
+    };
+
+    const startEditing = (post) => {
+        setEditingPostId(post._id);
+        setEditContent(post.content || "");
+        setEditFiles([]);
+        setEditKeepMedia(post.media?.map((m) => m.publicId) || []);
+        if (editFileInputRef.current) {
+            editFileInputRef.current.value = "";
+        }
+    };
+
+    const handleUpdatePost = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("content", editContent);
+        formData.append("keepMedia", JSON.stringify(editKeepMedia));
+        editFiles.forEach((file) => formData.append("media", file));
+        try {
+            const { data } = await updatePost(editingPostId, formData);
+            setMyPosts((prev) => prev.map((p) => (p._id === data._id ? data : p)));
+            resetEditForm();
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bài viết";
+            alert(errorMessage);
+        }
+    };
+
+    const handleDeletePost = async (postId) => {
+        if (!window.confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return;
+        try {
+            await deletePost(postId);
+            setMyPosts((prev) => prev.filter((p) => p._id !== postId));
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bài viết";
+            alert(errorMessage);
+        }
+    };
     const handleEdit = () => {
         if (!isEditing) {
             setEditData({ ...userData });
@@ -731,6 +945,184 @@ function UserProfile() {
                         </div>
                     </div>
                 </div>
+
+            {/* My Posts */}
+            <div className="container pb-4">
+                <div className="row justify-content-center">
+                    <div className="col-lg-10 col-xl-8">
+                        <div
+                            className="card shadow-lg mt-2"
+                            style={{ borderRadius: "20px", border: "none" }}
+                        >
+                            <div className="card-body p-4 p-md-5">
+                                <h4 className="mb-4 fw-bold text-primary d-flex align-items-center">
+                                    <i className="bi bi-chat-left-text me-2"></i>
+                                    Bài viết của tôi
+                                </h4>
+                                {/* Create post */}
+                                <form onSubmit={handleCreatePost} className="mb-4">
+                                    <div className="mb-3">
+                                        <label className="form-label fw-semibold">Đăng bài viết</label>
+                                        <textarea
+                                            className="form-control"
+                                            rows={3}
+                                            placeholder="Bạn đang nghĩ gì?"
+                                            value={newContent}
+                                            onChange={(e) => setNewContent(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Ảnh hoặc video</label>
+                                        <input
+                                            type="file"
+                                            multiple
+                                            accept="image/*,video/*"
+                                            ref={fileInputRef}
+                                            className="form-control"
+                                            onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
+                                        />
+                                        {renderNewFilesPreview(newFiles, setNewFiles)}
+                                    </div>
+                                    <div className="d-flex justify-content-end">
+                                        <button type="submit" className="btn btn-primary" disabled={creating}>
+                                            {creating ? "Đang đăng..." : "Đăng bài"}
+                                        </button>
+                                    </div>
+                                </form>
+
+                                {loadingMyPosts ? (
+                                    <div className="d-flex justify-content-center py-4">
+                                        <div className="spinner-border" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                ) : myPosts.length === 0 ? (
+                                    <p className="text-muted mb-0">Bạn chưa có bài viết nào.</p>
+                                ) : (
+                                    <div className="d-flex flex-column gap-4">
+                                        {myPosts.map((post) => {
+                                            const isEditingPost = editingPostId === post._id;
+                                            return (
+                                                <div key={post._id} className="card shadow-sm">
+                                                    <div className="card-body">
+                                                        <div className="d-flex justify-content-between">
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                {post.author?.avatar ? (
+                                                                    <Image
+                                                                        src={post.author.avatar}
+                                                                        roundedCircle
+                                                                        width={40}
+                                                                        height={40}
+                                                                        style={{ objectFit: "cover" }}
+                                                                    />
+                                                                ) : (
+                                                                    <div
+                                                                        className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                                        style={{ width: 40, height: 40 }}
+                                                                    >
+                                                                        {(post.author?.username?.charAt(0) ||
+                                                                            post.author?.email?.charAt(0) ||
+                                                                            "U").toUpperCase()}
+                                                                    </div>
+                                                                )}
+                                                                <div>
+                                                                    <strong>{post.author?.username || post.author?.email}</strong>
+                                                                    <div className="text-muted" style={{ fontSize: "0.85rem" }}>
+                                                                        {new Date(post.createdAt).toLocaleString("vi-VN", {
+                                                                            hour12: false,
+                                                                            year: "numeric",
+                                                                            month: "2-digit",
+                                                                            day: "2-digit",
+                                                                            hour: "2-digit",
+                                                                            minute: "2-digit",
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {!isEditingPost && (
+                                                                <div className="d-flex gap-2">
+                                                                    <button
+                                                                        className="btn btn-sm btn-outline-secondary"
+                                                                        onClick={() => startEditing(post)}
+                                                                    >
+                                                                        Sửa
+                                                                    </button>
+                                                                    <button
+                                                                        className="btn btn-sm btn-outline-danger"
+                                                                        onClick={() => handleDeletePost(post._id)}
+                                                                    >
+                                                                        Xóa
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {!isEditingPost && (
+                                                            <>
+                                                                <div className="mt-3">{post.content}</div>
+                                                                {renderMedia(post.media)}
+                                                                <div className="mt-2 text-muted" style={{ fontSize: "0.9rem" }}>
+                                                                    <span className="me-3">👍 {post.likes?.length || 0}</span>
+                                                                    <span>💬 {post.comments?.length || 0}</span>
+                                                                </div>
+                                                            </>
+                                                        )}
+
+                                                        {isEditingPost && (
+                                                            <form onSubmit={handleUpdatePost} className="mt-3">
+                                                                <div className="mb-3">
+                                                                    <label className="form-label">Nội dung</label>
+                                                                    <textarea
+                                                                        className="form-control"
+                                                                        rows={3}
+                                                                        value={editContent}
+                                                                        onChange={(e) => setEditContent(e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                {post.media?.length ? renderEditMedia(post) : null}
+                                                                <div className="mb-3">
+                                                                    <label className="form-label">Thêm ảnh/video</label>
+                                                                    <input
+                                                                        type="file"
+                                                                        multiple
+                                                                        accept="image/*,video/*"
+                                                                        ref={editFileInputRef}
+                                                                        className="form-control"
+                                                                        onChange={(e) =>
+                                                                            setEditFiles((prev) => [
+                                                                                ...prev,
+                                                                                ...Array.from(e.target.files || []),
+                                                                            ])
+                                                                        }
+                                                                    />
+                                                                    {renderNewFilesPreview(editFiles, setEditFiles)}
+                                                                </div>
+                                                                <div className="d-flex gap-2">
+                                                                    <button type="submit" className="btn btn-primary">
+                                                                        Lưu thay đổi
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-outline-secondary"
+                                                                        onClick={resetEditForm}
+                                                                    >
+                                                                        Hủy
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             </main>
 
             {/* Avatar Change Modal */}
