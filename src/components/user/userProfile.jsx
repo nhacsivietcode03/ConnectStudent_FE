@@ -5,7 +5,7 @@ import { userAPI } from "../../api/user.api";
 import { authAPI } from "../../api/auth.api";
 import Header from "../reuse/header";
 import { Image } from "react-bootstrap";
-import { fetchPosts, createPost, updatePost, deletePost } from "../../api/post.api";
+import { fetchPosts, createPost, updatePost, deletePost, createComment } from "../../api/post.api";
 
 function UserProfile() {
     const navigate = useNavigate();
@@ -50,6 +50,7 @@ function UserProfile() {
     const [editKeepMedia, setEditKeepMedia] = useState([]);
     const fileInputRef = React.useRef(null);
     const editFileInputRef = React.useRef(null);
+    const [commentDrafts, setCommentDrafts] = useState({});
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -1064,6 +1065,134 @@ function UserProfile() {
                                                                 <div className="mt-2 text-muted" style={{ fontSize: "0.9rem" }}>
                                                                     <span className="me-3">👍 {post.likes?.length || 0}</span>
                                                                     <span>💬 {post.comments?.length || 0}</span>
+                                                                </div>
+
+                                                                {post.comments?.length > 0 && (
+                                                                    <ul className="mt-3 list-unstyled">
+                                                                        {post.comments.map((comment) => (
+                                                                            <li
+                                                                                key={comment._id}
+                                                                                className="border rounded p-3 mb-2 bg-light"
+                                                                            >
+                                                                                <div className="d-flex gap-2">
+                                                                                    {comment.author?.avatar ? (
+                                                                                        <Image
+                                                                                            src={comment.author.avatar}
+                                                                                            roundedCircle
+                                                                                            width={32}
+                                                                                            height={32}
+                                                                                            style={{
+                                                                                                objectFit: "cover",
+                                                                                                flexShrink: 0,
+                                                                                            }}
+                                                                                        />
+                                                                                    ) : (
+                                                                                        <div
+                                                                                            className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                                                            style={{
+                                                                                                width: 32,
+                                                                                                height: 32,
+                                                                                                fontSize: "0.9rem",
+                                                                                                flexShrink: 0,
+                                                                                            }}
+                                                                                        >
+                                                                                            {(comment.author?.username?.charAt(0) ||
+                                                                                                comment.author?.email?.charAt(0) ||
+                                                                                                "U").toUpperCase()}
+                                                                                        </div>
+                                                                                    )}
+                                                                                    <div className="flex-grow-1">
+                                                                                        <div className="d-flex justify-content-between align-items-start mb-1">
+                                                                                            <div>
+                                                                                                <strong className="d-block">
+                                                                                                    {comment.author?.username ||
+                                                                                                        comment.author?.email ||
+                                                                                                        "Ẩn danh"}
+                                                                                                </strong>
+                                                                                                <span
+                                                                                                    className="text-muted"
+                                                                                                    style={{ fontSize: "0.75rem" }}
+                                                                                                >
+                                                                                                    {new Date(comment.createdAt).toLocaleString("vi-VN", {
+                                                                                                        hour12: false,
+                                                                                                        year: "numeric",
+                                                                                                        month: "2-digit",
+                                                                                                        day: "2-digit",
+                                                                                                        hour: "2-digit",
+                                                                                                        minute: "2-digit",
+                                                                                                    })}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div style={{ fontSize: "0.9rem" }}>
+                                                                                            {comment.content}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                )}
+
+                                                                <div className="mt-3 d-flex gap-2">
+                                                                    <input
+                                                                        type="text"
+                                                                        className="form-control form-control-sm"
+                                                                        placeholder="Viết bình luận..."
+                                                                        value={commentDrafts[post._id] || ""}
+                                                                        onChange={(e) =>
+                                                                            setCommentDrafts((prev) => ({
+                                                                                ...prev,
+                                                                                [post._id]: e.target.value,
+                                                                            }))
+                                                                        }
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === "Enter") {
+                                                                                e.preventDefault();
+                                                                                (async () => {
+                                                                                    const content = (commentDrafts[post._id] || "").trim();
+                                                                                    if (!content) return;
+                                                                                    try {
+                                                                                        const { data } = await createComment(post._id, { content });
+                                                                                        setMyPosts((prev) =>
+                                                                                            prev.map((p) =>
+                                                                                                p._id === post._id
+                                                                                                    ? { ...p, comments: [...(p.comments || []), data] }
+                                                                                                    : p
+                                                                                            )
+                                                                                        );
+                                                                                        setCommentDrafts((prev) => ({ ...prev, [post._id]: "" }));
+                                                                                    } catch (error) {
+                                                                                        const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
+                                                                                        alert(errorMessage);
+                                                                                    }
+                                                                                })();
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <button
+                                                                        className="btn btn-sm btn-primary"
+                                                                        onClick={async () => {
+                                                                            const content = (commentDrafts[post._id] || "").trim();
+                                                                            if (!content) return;
+                                                                            try {
+                                                                                const { data } = await createComment(post._id, { content });
+                                                                                setMyPosts((prev) =>
+                                                                                    prev.map((p) =>
+                                                                                        p._id === post._id
+                                                                                            ? { ...p, comments: [...(p.comments || []), data] }
+                                                                                            : p
+                                                                                    )
+                                                                                );
+                                                                                setCommentDrafts((prev) => ({ ...prev, [post._id]: "" }));
+                                                                            } catch (error) {
+                                                                                const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
+                                                                                alert(errorMessage);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Gửi
+                                                                    </button>
                                                                 </div>
                                                             </>
                                                         )}
