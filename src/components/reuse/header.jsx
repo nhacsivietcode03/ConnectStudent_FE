@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
@@ -11,6 +11,7 @@ import {
     markAsRead,
     markAllAsRead,
 } from "../../api/notification.api";
+import { chatAPI } from "../../api/chat.api";
 
 function Header() {
     const { isAuthenticated, user, logout } = useAuth();
@@ -18,6 +19,7 @@ function Header() {
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
     const [showDropdown, setShowDropdown] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [searching, setSearching] = useState(false);
@@ -29,29 +31,63 @@ function Header() {
         if (isAuthenticated && user) {
             loadNotifications();
             loadUnreadCount();
+            loadUnreadMessagesCount();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated, user]);
+
+    const loadUnreadMessagesCount = useCallback(async () => {
+        try {
+            const response = await chatAPI.getConversations();
+            const conversations = response.conversations || [];
+            const totalUnread = conversations.reduce((sum, conv) => {
+                return sum + (conv.unreadCount || 0);
+            }, 0);
+            setUnreadMessagesCount(totalUnread);
+        } catch (error) {
+            console.error("Failed to load unread messages count", error);
+        }
+    }, []);
 
     // Socket event listeners for realtime updates
     useEffect(() => {
         if (socket && isConnected) {
             // Listen for new notifications
-            socket.on('new-notification', (notification) => {
+            socket.on("new-notification", (notification) => {
                 setNotifications((prev) => [notification, ...prev]);
                 setUnreadCount((prev) => prev + 1);
+                // If it's a message notification, update unread messages count
+                if (notification.type === "message") {
+                    loadUnreadMessagesCount();
+                }
             });
 
             // Listen for unread count updates
-            socket.on('unread-count-update', () => {
-                loadUnreadCount();
+            socket.on("unread-count-update", (data) => {
+                if (data && typeof data.count === "number") {
+                    setUnreadCount(data.count);
+                } else {
+                    loadUnreadCount();
+                }
+            });
+
+            // Listen for new messages to update unread count
+            socket.on("new_message", () => {
+                loadUnreadMessagesCount();
+            });
+
+            socket.on("message_received", () => {
+                loadUnreadMessagesCount();
             });
 
             return () => {
-                socket.off('new-notification');
-                socket.off('unread-count-update');
+                socket.off("new-notification");
+                socket.off("unread-count-update");
+                socket.off("new_message");
+                socket.off("message_received");
             };
         }
-    }, [socket, isConnected]);
+    }, [socket, isConnected, loadUnreadMessagesCount]);
 
     const loadNotifications = async () => {
         try {
@@ -76,9 +112,7 @@ function Header() {
             try {
                 await markAsRead(notification._id);
                 setNotifications((prev) =>
-                    prev.map((n) =>
-                        n._id === notification._id ? { ...n, read: true } : n
-                    )
+                    prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
                 );
                 setUnreadCount((prev) => Math.max(0, prev - 1));
             } catch (error) {
@@ -86,15 +120,24 @@ function Header() {
             }
         }
         setShowDropdown(false);
-        navigate("/");
+
+        // Navigate based on notification type
+        if (notification.type === "message") {
+            // Navigate to chat with conversation ID if available
+            if (notification.conversation) {
+                navigate(`/chat?conversationId=${notification.conversation}`);
+            } else {
+                navigate("/chat");
+            }
+        } else {
+            navigate("/");
+        }
     };
 
     const handleMarkAllAsRead = async () => {
         try {
             await markAllAsRead();
-            setNotifications((prev) =>
-                prev.map((n) => ({ ...n, read: true }))
-            );
+            setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
             setUnreadCount(0);
         } catch (error) {
             console.error("Failed to mark all as read", error);
@@ -102,6 +145,10 @@ function Header() {
     };
 
     const goToPostFromNotification = (notification) => {
+        // Don't navigate here if it's a message notification (handled in handleNotificationClick)
+        if (notification.type === "message") {
+            return;
+        }
         const postId = notification?.post?._id || notification?.post;
         if (postId) {
             navigate(`/posts/${postId}`);
@@ -194,7 +241,9 @@ function Header() {
     const handleFollow = async (targetId) => {
         try {
             await sendFollowRequest(targetId);
-            setSearchResults((prev) => prev.map((u) => (u._id === targetId ? { ...u, __requested: true } : u)));
+            setSearchResults((prev) =>
+                prev.map((u) => (u._id === targetId ? { ...u, __requested: true } : u))
+            );
         } catch (e) {
             const errorMessage = e.response?.data?.message || "Cannot send follow request";
             alert(errorMessage);
@@ -218,7 +267,10 @@ function Header() {
             </h1>
 
             {user?.role !== "admin" && (
-                <nav className="d-flex gap-4 align-items-center position-relative" style={{ flex: 1, marginLeft: 48, marginRight: 24 }}>
+                <nav
+                    className="d-flex gap-4 align-items-center position-relative"
+                    style={{ flex: 1, marginLeft: 48, marginRight: 24 }}
+                >
                     <Link to="/" className="text-white text-decoration-none">
                         Home
                     </Link>
@@ -235,7 +287,15 @@ function Header() {
                     >
                         Friends
                     </button>
-                    <div className="ms-auto" style={{ position: "relative", minWidth: 260, maxWidth: 360, width: "100%" }}>
+                    <div
+                        className="ms-auto"
+                        style={{
+                            position: "relative",
+                            minWidth: 260,
+                            maxWidth: 360,
+                            width: "100%",
+                        }}
+                    >
                         <input
                             type="text"
                             className="form-control form-control-sm"
@@ -248,7 +308,15 @@ function Header() {
                         {showSearch && (
                             <div
                                 className="bg-white text-dark border rounded shadow-sm"
-                                style={{ position: "absolute", top: "110%", left: 0, right: 0, zIndex: 1050, maxHeight: 320, overflowY: "auto" }}
+                                style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    left: 0,
+                                    right: 0,
+                                    zIndex: 1050,
+                                    maxHeight: 320,
+                                    overflowY: "auto",
+                                }}
                             >
                                 {searching ? (
                                     <div className="p-2 text-muted">Searching...</div>
@@ -256,17 +324,42 @@ function Header() {
                                     <div className="p-2 text-muted">No users found</div>
                                 ) : (
                                     searchResults.map((u) => (
-                                        <div key={u._id} className="d-flex align-items-center justify-content-between p-2 border-bottom">
+                                        <div
+                                            key={u._id}
+                                            className="d-flex align-items-center justify-content-between p-2 border-bottom"
+                                        >
                                             <div className="d-flex align-items-center gap-2">
                                                 {u.avatar ? (
-                                                    <img src={u.avatar} alt="" className="rounded-circle" style={{ width: 32, height: 32, objectFit: "cover" }} />
+                                                    <img
+                                                        src={u.avatar}
+                                                        alt=""
+                                                        className="rounded-circle"
+                                                        style={{
+                                                            width: 32,
+                                                            height: 32,
+                                                            objectFit: "cover",
+                                                        }}
+                                                    />
                                                 ) : (
-                                                    <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style={{ width: 32, height: 32, fontSize: 12 }}>
-                                                        {(u.username?.charAt(0) || u.email?.charAt(0) || "U").toUpperCase()}
+                                                    <div
+                                                        className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                        style={{
+                                                            width: 32,
+                                                            height: 32,
+                                                            fontSize: 12,
+                                                        }}
+                                                    >
+                                                        {(
+                                                            u.username?.charAt(0) ||
+                                                            u.email?.charAt(0) ||
+                                                            "U"
+                                                        ).toUpperCase()}
                                                     </div>
                                                 )}
                                                 <div className="small">
-                                                    <div className="fw-semibold">{u.username || u.email}</div>
+                                                    <div className="fw-semibold">
+                                                        {u.username || u.email}
+                                                    </div>
                                                     <div className="text-muted">{u.email}</div>
                                                 </div>
                                             </div>
@@ -288,6 +381,42 @@ function Header() {
 
             {isAuthenticated && user ? (
                 <div className="d-flex align-items-center gap-3">
+                    {/* Chat Icon */}
+                    <div
+                        onClick={() => navigate("/chat")}
+                        style={{
+                            cursor: "pointer",
+                            position: "relative",
+                            padding: "8px",
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.opacity = "0.8";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.opacity = "1";
+                        }}
+                    >
+                        <i
+                            className="bi bi-chat-dots-fill text-white"
+                            style={{ fontSize: "1.5rem" }}
+                        ></i>
+                        {unreadMessagesCount > 0 && (
+                            <span
+                                className="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle"
+                                style={{
+                                    fontSize: "0.7rem",
+                                    minWidth: "18px",
+                                    height: "18px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                {unreadMessagesCount > 9 ? "9+" : unreadMessagesCount}
+                            </span>
+                        )}
+                    </div>
+
                     {/* Notification Bell */}
                     <Dropdown
                         show={showDropdown}
@@ -363,8 +492,7 @@ function Header() {
                                             onClick={() => {
                                                 handleNotificationClick(notification);
                                                 goToPostFromNotification(notification);
-                                            }
-                                            }
+                                            }}
                                             style={{
                                                 backgroundColor: notification.read
                                                     ? "white"
@@ -374,15 +502,11 @@ function Header() {
                                             }}
                                             onMouseEnter={(e) => {
                                                 e.currentTarget.style.backgroundColor =
-                                                    notification.read
-                                                        ? "#f8f9fa"
-                                                        : "#d0e7ff";
+                                                    notification.read ? "#f8f9fa" : "#d0e7ff";
                                             }}
                                             onMouseLeave={(e) => {
                                                 e.currentTarget.style.backgroundColor =
-                                                    notification.read
-                                                        ? "white"
-                                                        : "#e7f3ff";
+                                                    notification.read ? "white" : "#e7f3ff";
                                             }}
                                         >
                                             <div className="d-flex gap-2">
@@ -407,10 +531,10 @@ function Header() {
                                                         }}
                                                     >
                                                         {(
-                                                            notification.sender
-                                                                ?.username?.charAt(0) ||
-                                                            notification.sender
-                                                                ?.email?.charAt(0) ||
+                                                            notification.sender?.username?.charAt(
+                                                                0
+                                                            ) ||
+                                                            notification.sender?.email?.charAt(0) ||
                                                             "U"
                                                         ).toUpperCase()}
                                                     </div>
@@ -422,9 +546,7 @@ function Header() {
                                                     >
                                                         <div>
                                                             <div className="fw-semibold">
-                                                                {getNotificationText(
-                                                                    notification
-                                                                )}
+                                                                {getNotificationText(notification)}
                                                             </div>
                                                             <div
                                                                 className="text-muted"
@@ -488,9 +610,7 @@ function Header() {
                                     fontSize: "1.2rem",
                                 }}
                             >
-                                {(user.username || user.email || "U")
-                                    .charAt(0)
-                                    .toUpperCase()}
+                                {(user.username || user.email || "U").charAt(0).toUpperCase()}
                             </div>
                         )}
                         <span className="text-white">

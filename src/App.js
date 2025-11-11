@@ -12,6 +12,7 @@ import VerifyOtpResetScreen from "./components/login/verifyOtpReset";
 import ResetPasswordScreen from "./components/login/resetPassword";
 import PostDetailPage from "./components/user/PostDetailPage";
 import FriendsPage from "./components/user/FriendsPage";
+import ChatPage from "./components/chat/ChatPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -68,52 +69,60 @@ function App() {
                 <SocketProvider>
                     <div className="App">
                         <Routes>
-                        <Route
-                            path="/"
-                            element={
-                                <ProtectedRoute>
-                                    <HomePage />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/profile"
-                            element={
-                                <ProtectedRoute>
-                                    <UserProfile />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/admin"
-                            element={
-                                <AdminRoute>
-                                    <AdminHomePage />
-                                </AdminRoute>
-                            }
-                        />
-                        <Route path="/login" element={<LoginScreen />} />
-                        <Route path="/register" element={<RegisterScreen />} />
-                        <Route path="/otp" element={<OTP />} />
-                        <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
-                        <Route path="/verify-otp-reset" element={<VerifyOtpResetScreen />} />
-                        <Route path="/reset-password" element={<ResetPasswordScreen />} />
-						<Route
-							path="/posts/:id"
-							element={
-								<ProtectedRoute>
-									<PostDetailPage />
-								</ProtectedRoute>
-							}
-						/>
-                        <Route
-                            path="/friends"
-                            element={
-                                <ProtectedRoute>
-                                    <FriendsPage />
-                                </ProtectedRoute>
-                            }
-                        />
+                            <Route
+                                path="/"
+                                element={
+                                    <ProtectedRoute>
+                                        <HomePage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/profile"
+                                element={
+                                    <ProtectedRoute>
+                                        <UserProfile />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/admin"
+                                element={
+                                    <AdminRoute>
+                                        <AdminHomePage />
+                                    </AdminRoute>
+                                }
+                            />
+                            <Route path="/login" element={<LoginScreen />} />
+                            <Route path="/register" element={<RegisterScreen />} />
+                            <Route path="/otp" element={<OTP />} />
+                            <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+                            <Route path="/verify-otp-reset" element={<VerifyOtpResetScreen />} />
+                            <Route path="/reset-password" element={<ResetPasswordScreen />} />
+                            <Route
+                                path="/posts/:id"
+                                element={
+                                    <ProtectedRoute>
+                                        <PostDetailPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/friends"
+                                element={
+                                    <ProtectedRoute>
+                                        <FriendsPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/chat"
+                                element={
+                                    <ProtectedRoute>
+                                        <ChatPage />
+                                    </ProtectedRoute>
+                                }
+                            />
                         </Routes>
                     </div>
                 </SocketProvider>
