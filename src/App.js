@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { SocketProvider } from "./contexts/SocketContext";
 import UserHomePage from "./components/user/userHomePage";
 import UserProfile from "./components/user/userProfile";
+import ChatPage from "./components/chat/ChatPage";
 import LoginScreen from "./components/login/login";
 import RegisterScreen from "./components/login/register";
 import OTP from "./components/login/OTP";
@@ -33,32 +35,42 @@ function App() {
     return (
         <Router>
             <AuthProvider>
-                <div className="App">
-                    <Routes>
-                        <Route
-                            path="/"
-                            element={
-                                <ProtectedRoute>
-                                    <UserHomePage />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/profile"
-                            element={
-                                <ProtectedRoute>
-                                    <UserProfile />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route path="/login" element={<LoginScreen />} />
-                        <Route path="/register" element={<RegisterScreen />} />
-                        <Route path="/otp" element={<OTP />} />
-                        <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
-                        <Route path="/verify-otp-reset" element={<VerifyOtpResetScreen />} />
-                        <Route path="/reset-password" element={<ResetPasswordScreen />} />
-                    </Routes>
-                </div>
+                <SocketProvider>
+                    <div className="App">
+                        <Routes>
+                            <Route
+                                path="/"
+                                element={
+                                    <ProtectedRoute>
+                                        <UserHomePage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/profile"
+                                element={
+                                    <ProtectedRoute>
+                                        <UserProfile />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/chat"
+                                element={
+                                    <ProtectedRoute>
+                                        <ChatPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route path="/login" element={<LoginScreen />} />
+                            <Route path="/register" element={<RegisterScreen />} />
+                            <Route path="/otp" element={<OTP />} />
+                            <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+                            <Route path="/verify-otp-reset" element={<VerifyOtpResetScreen />} />
+                            <Route path="/reset-password" element={<ResetPasswordScreen />} />
+                        </Routes>
+                    </div>
+                </SocketProvider>
             </AuthProvider>
         </Router>
     );
