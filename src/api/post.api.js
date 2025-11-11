@@ -36,6 +36,10 @@ export const deleteComment = (postId, commentId) => {
 	return client.delete(`/posts/${postId}/comments/${commentId}`)
 }
 
+export const updateComment = (postId, commentId, payload) => {
+	return client.put(`/posts/${postId}/comments/${commentId}`, payload)
+}
+
 export const toggleLike = (postId) => {
 	return client.post(`/posts/${postId}/like`)
 }

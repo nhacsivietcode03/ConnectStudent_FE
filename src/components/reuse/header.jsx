@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
 import { Image, Dropdown } from "react-bootstrap";
+import { sendFollowRequest } from "../../api/follow.api";
+import client from "../../api/client";
 import {
     fetchNotifications,
     getUnreadCount,
@@ -17,6 +19,10 @@ function Header() {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searching, setSearching] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
+    const [showSearch, setShowSearch] = useState(false);
 
     // Load initial data
     useEffect(() => {
@@ -127,6 +133,12 @@ function Header() {
             return `${senderName} đã thích bài viết của bạn`;
         } else if (notification.type === "comment") {
             return `${senderName} đã bình luận bài viết của bạn`;
+        } else if (notification.type === "follow_request") {
+            return `${senderName} đã gửi lời mời theo dõi`;
+        } else if (notification.type === "follow_accept") {
+            return `${senderName} đã chấp nhận lời mời theo dõi của bạn`;
+        } else if (notification.type === "follow_reject") {
+            return `${senderName} đã từ chối lời mời theo dõi của bạn`;
         }
         return "Bạn có thông báo mới";
     };
@@ -134,6 +146,47 @@ function Header() {
     const handleLogout = async () => {
         await logout();
         navigate("/login");
+    };
+
+    // User search
+    useEffect(() => {
+        const handler = setTimeout(async () => {
+            const term = searchTerm.trim();
+            if (!term) {
+                setSearchResults([]);
+                setShowSearch(false);
+                return;
+            }
+            try {
+                setSearching(true);
+                // Simple search via user list then filter on client
+                const { data } = await client.get("/users/getUser");
+                const normalized = (data || []).filter(
+                    (u) =>
+                        (u.username && u.username.toLowerCase().includes(term.toLowerCase())) ||
+                        (u.email && u.email.toLowerCase().includes(term.toLowerCase()))
+                );
+                // Exclude self
+                const filtered = normalized.filter((u) => String(u._id) !== String(user?._id));
+                setSearchResults(filtered.slice(0, 8));
+                setShowSearch(true);
+            } catch (e) {
+                setSearchResults([]);
+                setShowSearch(false);
+            } finally {
+                setSearching(false);
+            }
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [searchTerm, user]);
+
+    const handleFollow = async (targetId) => {
+        try {
+            await sendFollowRequest(targetId);
+            setSearchResults((prev) => prev.map((u) => (u._id === targetId ? { ...u, __requested: true } : u)));
+        } catch (e) {
+            // noop
+        }
     };
 
     return (
@@ -153,7 +206,7 @@ function Header() {
             </h1>
 
             {user?.role !== "admin" && (
-                <nav className="d-flex gap-4">
+                <nav className="d-flex gap-4 align-items-center position-relative" style={{ flex: 1, marginLeft: 48, marginRight: 24 }}>
                     <Link to="/" className="text-white text-decoration-none">
                         Home
                     </Link>
@@ -166,9 +219,58 @@ function Header() {
                     <button
                         className="btn btn-link text-white text-decoration-none p-0 border-0"
                         style={{ textDecoration: "none" }}
+                        onClick={() => navigate("/friends")}
                     >
                         Friends
                     </button>
+                    <div className="ms-auto" style={{ position: "relative", minWidth: 260, maxWidth: 360, width: "100%" }}>
+                        <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            placeholder="Tìm kiếm người dùng..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onFocus={() => searchResults.length > 0 && setShowSearch(true)}
+                            onBlur={() => setTimeout(() => setShowSearch(false), 150)}
+                        />
+                        {showSearch && (
+                            <div
+                                className="bg-white text-dark border rounded shadow-sm"
+                                style={{ position: "absolute", top: "110%", left: 0, right: 0, zIndex: 1050, maxHeight: 320, overflowY: "auto" }}
+                            >
+                                {searching ? (
+                                    <div className="p-2 text-muted">Đang tìm...</div>
+                                ) : searchResults.length === 0 ? (
+                                    <div className="p-2 text-muted">Không tìm thấy người dùng</div>
+                                ) : (
+                                    searchResults.map((u) => (
+                                        <div key={u._id} className="d-flex align-items-center justify-content-between p-2 border-bottom">
+                                            <div className="d-flex align-items-center gap-2">
+                                                {u.avatar ? (
+                                                    <img src={u.avatar} alt="" className="rounded-circle" style={{ width: 32, height: 32, objectFit: "cover" }} />
+                                                ) : (
+                                                    <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style={{ width: 32, height: 32, fontSize: 12 }}>
+                                                        {(u.username?.charAt(0) || u.email?.charAt(0) || "U").toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="small">
+                                                    <div className="fw-semibold">{u.username || u.email}</div>
+                                                    <div className="text-muted">{u.email}</div>
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="btn btn-sm btn-outline-primary"
+                                                disabled={u.__requested}
+                                                onClick={() => handleFollow(u._id)}
+                                            >
+                                                {u.__requested ? "Đã gửi" : "Follow"}
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </nav>
             )}
 

@@ -11,6 +11,7 @@ import ForgotPasswordScreen from "./components/login/forgotPassword";
 import VerifyOtpResetScreen from "./components/login/verifyOtpReset";
 import ResetPasswordScreen from "./components/login/resetPassword";
 import PostDetailPage from "./components/user/PostDetailPage";
+import FriendsPage from "./components/user/FriendsPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -105,6 +106,14 @@ function App() {
 								</ProtectedRoute>
 							}
 						/>
+                        <Route
+                            path="/friends"
+                            element={
+                                <ProtectedRoute>
+                                    <FriendsPage />
+                                </ProtectedRoute>
+                            }
+                        />
                         </Routes>
                     </div>
                 </SocketProvider>

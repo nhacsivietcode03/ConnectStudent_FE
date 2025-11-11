@@ -9,6 +9,7 @@ import {
     deletePost,
     createComment,
     deleteComment,
+    updateComment,
     toggleLike,
 } from "../../api/post.api";
 
@@ -151,6 +152,8 @@ function Post() {
     };
 
     const handleDeleteComment = async (postId, commentId) => {
+        const ok = window.confirm("Bạn có chắc chắn muốn xóa bình luận này?");
+        if (!ok) return;
         try {
             await deleteComment(postId, commentId);
             setPosts((prev) =>
@@ -167,6 +170,40 @@ function Post() {
             );
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bình luận";
+            alert(errorMessage);
+        }
+    };
+
+    const [editingCommentDrafts, setEditingCommentDrafts] = useState({}); // commentId -> text
+    const [editingCommentId, setEditingCommentId] = useState(null);
+
+    const startEditComment = (comment) => {
+        setEditingCommentId(comment._id);
+        setEditingCommentDrafts((prev) => ({ ...prev, [comment._id]: comment.content || "" }));
+    };
+
+    const cancelEditComment = () => {
+        setEditingCommentId(null);
+    };
+
+    const saveEditComment = async (postId, commentId) => {
+        const text = editingCommentDrafts[commentId]?.trim();
+        if (!text) return;
+        try {
+            const { data } = await updateComment(postId, commentId, { content: text });
+            setPosts((prev) =>
+                prev.map((post) =>
+                    post._id === postId
+                        ? {
+                            ...post,
+                            comments: post.comments.map((c) => (c._id === commentId ? data : c)),
+                        }
+                        : post
+                )
+            );
+            setEditingCommentId(null);
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bình luận";
             alert(errorMessage);
         }
     };
@@ -568,27 +605,79 @@ function Post() {
                                                                     {formatDateTime(comment.createdAt)}
                                                                 </span>
                                                             </div>
-                                                            {(comment.author?._id === user?._id ||
-                                                                owner) && (
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                {comment.author?._id === user?._id && (
+                                                                    <>
+                                                                        {editingCommentId === comment._id ? (
+                                                                            <>
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="link"
+                                                                                    className="p-0"
+                                                                                    style={{ fontSize: "0.85rem" }}
+                                                                                    onClick={() => saveEditComment(post._id, comment._id)}
+                                                                                >
+                                                                                    Lưu
+                                                                                </Button>
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="link"
+                                                                                    className="text-secondary p-0"
+                                                                                    style={{ fontSize: "0.85rem" }}
+                                                                                    onClick={cancelEditComment}
+                                                                                >
+                                                                                    Hủy
+                                                                                </Button>
+                                                                            </>
+                                                                        ) : (
+                                                                            <Button
+                                                                                size="sm"
+                                                                                variant="link"
+                                                                                className="p-0"
+                                                                                style={{ fontSize: "0.85rem" }}
+                                                                                onClick={() => startEditComment(comment)}
+                                                                            >
+                                                                                Sửa
+                                                                            </Button>
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                                {(comment.author?._id === user?._id || owner) && (
                                                                     <Button
                                                                         size="sm"
                                                                         variant="link"
                                                                         className="text-danger p-0"
                                                                         style={{ fontSize: "0.85rem" }}
-                                                                        onClick={() =>
-                                                                            handleDeleteComment(
-                                                                                post._id,
-                                                                                comment._id
-                                                                            )
-                                                                        }
+                                                                        onClick={() => handleDeleteComment(post._id, comment._id)}
                                                                     >
                                                                         Xóa
                                                                     </Button>
                                                                 )}
+                                                            </div>
                                                         </div>
-                                                        <div style={{ fontSize: "0.9rem" }}>
-                                                            {comment.content}
-                                                        </div>
+                                                        {editingCommentId === comment._id ? (
+                                                            <Form.Control
+                                                                size="sm"
+                                                                type="text"
+                                                                value={editingCommentDrafts[comment._id] || ""}
+                                                                onChange={(e) =>
+                                                                    setEditingCommentDrafts((prev) => ({
+                                                                        ...prev,
+                                                                        [comment._id]: e.target.value,
+                                                                    }))
+                                                                }
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === "Enter") {
+                                                                        e.preventDefault();
+                                                                        saveEditComment(post._id, comment._id);
+                                                                    }
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <div style={{ fontSize: "0.9rem" }}>
+                                                                {comment.content}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </li>

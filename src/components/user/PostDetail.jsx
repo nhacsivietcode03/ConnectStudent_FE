@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Modal, Button, Card, Image, Form, Spinner } from "react-bootstrap";
-import { fetchPost, createComment, deleteComment, toggleLike } from "../../api/post.api";
+import { fetchPost, createComment, deleteComment, updateComment, toggleLike } from "../../api/post.api";
 import { useAuth } from "../../contexts/AuthContext";
 const formatDateTime = (value) => {
 	if (!value) return "";
@@ -20,6 +20,8 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 	const [loading, setLoading] = useState(true);
 	const [commentText, setCommentText] = useState("");
 	const [submitting, setSubmitting] = useState(false);
+	const [editingCommentId, setEditingCommentId] = useState(null);
+	const [editingCommentText, setEditingCommentText] = useState("");
 
 	const isOwner = useMemo(() => {
 		return (postAuthorId) => user && postAuthorId && postAuthorId === user?._id;
@@ -60,11 +62,44 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 	};
 
 	const handleDeleteComment = async (commentId) => {
+		const ok = window.confirm("Bạn có chắc chắn muốn xóa bình luận này?");
+		if (!ok) return;
 		try {
 			await deleteComment(postId, commentId);
 			setPost((prev) => prev ? { ...prev, comments: (prev.comments || []).filter(c => c._id !== commentId) } : prev);
 		} catch (error) {
 			const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bình luận";
+			alert(errorMessage);
+		}
+	};
+
+	const startEditComment = (comment) => {
+		setEditingCommentId(comment._id);
+		setEditingCommentText(comment.content || "");
+	};
+
+	const cancelEditComment = () => {
+		setEditingCommentId(null);
+		setEditingCommentText("");
+	};
+
+	const saveEditComment = async (commentId) => {
+		const text = editingCommentText.trim();
+		if (!text) return;
+		try {
+			const { data } = await updateComment(postId, commentId, { content: text });
+			setPost((prev) =>
+				prev
+					? {
+						...prev,
+						comments: (prev.comments || []).map((c) => (c._id === commentId ? data : c)),
+					}
+					: prev
+			);
+			setEditingCommentId(null);
+			setEditingCommentText("");
+		} catch (error) {
+			const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bình luận";
 			alert(errorMessage);
 		}
 	};
@@ -189,19 +224,72 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 															{formatDateTime(comment.createdAt)}
 														</span>
 													</div>
-													{(comment.author?._id === user?._id || isOwner(post.author?._id)) && (
-														<Button
-															size="sm"
-															variant="link"
-															className="text-danger p-0"
-															style={{ fontSize: "0.85rem" }}
-															onClick={() => handleDeleteComment(comment._id)}
-														>
-															Xóa
-														</Button>
-													)}
+													<div className="d-flex align-items-center gap-2">
+														{comment.author?._id === user?._id && (
+															<>
+																{editingCommentId === comment._id ? (
+																	<>
+																		<Button
+																			size="sm"
+																			variant="link"
+																			className="p-0"
+																			style={{ fontSize: "0.85rem" }}
+																			onClick={() => saveEditComment(comment._id)}
+																		>
+																			Lưu
+																		</Button>
+																		<Button
+																			size="sm"
+																			variant="link"
+																			className="text-secondary p-0"
+																			style={{ fontSize: "0.85rem" }}
+																			onClick={cancelEditComment}
+																		>
+																			Hủy
+																		</Button>
+																	</>
+																) : (
+																	<Button
+																		size="sm"
+																		variant="link"
+																		className="p-0"
+																		style={{ fontSize: "0.85rem" }}
+																		onClick={() => startEditComment(comment)}
+																	>
+																		Sửa
+																	</Button>
+																)}
+															</>
+														)}
+														{(comment.author?._id === user?._id || isOwner(post.author?._id)) && (
+															<Button
+																size="sm"
+																variant="link"
+																className="text-danger p-0"
+																style={{ fontSize: "0.85rem" }}
+																onClick={() => handleDeleteComment(comment._id)}
+															>
+																Xóa
+															</Button>
+														)}
+													</div>
 												</div>
-												<div style={{ fontSize: "0.9rem" }}>{comment.content}</div>
+												{editingCommentId === comment._id ? (
+													<Form.Control
+														size="sm"
+														type="text"
+														value={editingCommentText}
+														onChange={(e) => setEditingCommentText(e.target.value)}
+														onKeyDown={(e) => {
+															if (e.key === "Enter") {
+																e.preventDefault();
+																saveEditComment(comment._id);
+															}
+														}}
+													/>
+												) : (
+													<div style={{ fontSize: "0.9rem" }}>{comment.content}</div>
+												)}
 											</div>
 										</div>
 									</li>
