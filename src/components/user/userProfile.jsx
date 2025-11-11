@@ -5,10 +5,12 @@ import { userAPI } from "../../api/user.api";
 import { authAPI } from "../../api/auth.api";
 import Header from "../reuse/header";
 import { Image } from "react-bootstrap";
-import { fetchPosts, createPost, updatePost, deletePost } from "../../api/post.api";
+import { fetchPosts, createPost, updatePost, deletePost, createComment, deleteComment, updateComment } from "../../api/post.api";
+import { useAuth } from "../../contexts/AuthContext";
 
 function UserProfile() {
     const navigate = useNavigate();
+    const { user, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -50,6 +52,11 @@ function UserProfile() {
     const [editKeepMedia, setEditKeepMedia] = useState([]);
     const fileInputRef = React.useRef(null);
     const editFileInputRef = React.useRef(null);
+
+    // Comment states
+    const [commentDrafts, setCommentDrafts] = useState({});
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editingCommentDrafts, setEditingCommentDrafts] = useState({});
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -205,7 +212,7 @@ function UserProfile() {
                                 className="btn btn-sm btn-outline-danger"
                                 onClick={() => setFiles((prev) => prev.filter((_, index) => index !== idx))}
                             >
-                                Xóa
+                                Delete
                             </button>
                         </li>
                     ))}
@@ -287,6 +294,91 @@ function UserProfile() {
             alert(errorMessage);
         }
     };
+
+    // Comment handlers
+    const handleAddComment = async (postId) => {
+        const content = commentDrafts[postId];
+        if (!content || !content.trim()) return;
+        try {
+            const { data } = await createComment(postId, { content });
+            setMyPosts((prev) =>
+                prev.map((post) =>
+                    post._id === postId
+                        ? { ...post, comments: [...(post.comments || []), data] }
+                        : post
+                )
+            );
+            setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Cannot add comment";
+            alert(errorMessage);
+        }
+    };
+
+    const handleDeleteComment = async (postId, commentId) => {
+        const ok = window.confirm("Are you sure you want to delete this comment?");
+        if (!ok) return;
+        try {
+            await deleteComment(postId, commentId);
+            setMyPosts((prev) =>
+                prev.map((post) =>
+                    post._id === postId
+                        ? {
+                            ...post,
+                            comments: (post.comments || []).filter((c) => c._id !== commentId),
+                        }
+                        : post
+                )
+            );
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Cannot delete comment";
+            alert(errorMessage);
+        }
+    };
+
+    const startEditComment = (comment) => {
+        setEditingCommentId(comment._id);
+        setEditingCommentDrafts((prev) => ({ ...prev, [comment._id]: comment.content || "" }));
+    };
+
+    const cancelEditComment = () => {
+        setEditingCommentId(null);
+    };
+
+    const saveEditComment = async (postId, commentId) => {
+        const text = editingCommentDrafts[commentId]?.trim();
+        if (!text) return;
+        try {
+            const { data } = await updateComment(postId, commentId, { content: text });
+            setMyPosts((prev) =>
+                prev.map((post) =>
+                    post._id === postId
+                        ? {
+                            ...post,
+                            comments: (post.comments || []).map((c) => (c._id === commentId ? data : c)),
+                        }
+                        : post
+                )
+            );
+            setEditingCommentId(null);
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Cannot update comment";
+            alert(errorMessage);
+        }
+    };
+
+    const formatDateTime = (value) => {
+        if (!value) return "";
+        return new Date(value).toLocaleString("en-US", {
+            hour12: false,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
     const handleEdit = () => {
         if (!isEditing) {
             setEditData({ ...userData });
@@ -328,6 +420,16 @@ function UserProfile() {
                 setIsEditing(false);
                 setEditData(null);
                 setSuccessMsg("Information updated successfully!");
+                // Sync AuthContext and localStorage so Header updates immediately
+                const nextUser = {
+                    ...(user || {}),
+                    username: editData.username,
+                    email: editData.email,
+                    major: editData.major || "",
+                    avatar: editData.avatar || "",
+                    bio: editData.bio || ""
+                };
+                updateUser(nextUser);
             }
         } catch (err) {
             const errorMessage = err.response?.data?.message || "Cannot update information. Please try again later.";
@@ -475,13 +577,13 @@ function UserProfile() {
 
         // Validate file type
         if (!file.type.startsWith("image/")) {
-            setError("Vui lòng chọn file ảnh hợp lệ!");
+            setError("Please select a valid image file!");
             return;
         }
 
         // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
-            setError("Kích thước file không được vượt quá 5MB!");
+            setError("File size must not exceed 5MB!");
             return;
         }
 
@@ -496,7 +598,7 @@ function UserProfile() {
 
     const handleAvatarUpload = async () => {
         if (!selectedFile) {
-            setError("Vui lòng chọn ảnh để upload!");
+            setError("Please select an image to upload!");
             return;
         }
 
@@ -680,7 +782,7 @@ function UserProfile() {
                                                     cursor: "pointer",
                                                 }}
                                                 onClick={handleAvatarClick}
-                                                title="Thay đổi ảnh đại diện"
+                                                title="Change avatar"
                                             >
                                                 <i className="bi bi-camera-fill"></i>
                                             </div>
@@ -704,7 +806,7 @@ function UserProfile() {
                                                 style={{ opacity: 0.8, fontSize: "0.9rem" }}
                                             >
                                                 <i className="bi bi-calendar3 me-2"></i>
-                                                Thành viên từ{" "}
+                                                Member since{" "}
                                                 {userData.createdAt
                                                     ? new Date(
                                                         userData.createdAt
@@ -787,7 +889,7 @@ function UserProfile() {
                                                         username: undefined,
                                                     }));
                                                 }}
-                                                placeholder="Nhập tên người dùng"
+                                                placeholder="Enter username"
                                             />
                                             {fieldErrors.username && (
                                                 <div className="invalid-feedback d-block">
@@ -851,7 +953,7 @@ function UserProfile() {
                                                         : null
                                                 )
                                             }
-                                            placeholder="Nhập chuyên ngành"
+                                            placeholder="Enter major"
                                         />
                                     ) : (
                                         <div
@@ -859,7 +961,7 @@ function UserProfile() {
                                             style={{ borderRadius: "10px" }}
                                         >
                                             <p className="mb-0 fw-medium">
-                                                {userData.major || "Chưa cập nhật"}
+                                                {userData.major || "Not updated"}
                                             </p>
                                         </div>
                                     )}
@@ -891,7 +993,7 @@ function UserProfile() {
                                                         : null
                                                 )
                                             }
-                                            placeholder="Nhập giới thiệu về bản thân..."
+                                            placeholder="Enter bio about yourself..."
                                         />
                                     ) : (
                                         <div
@@ -902,7 +1004,7 @@ function UserProfile() {
                                                 className="mb-0 fw-medium"
                                                 style={{ whiteSpace: "pre-wrap" }}
                                             >
-                                                {userData.bio || "Chưa cập nhật"}
+                                                {userData.bio || "Not updated"}
                                             </p>
                                         </div>
                                     )}
@@ -1065,6 +1167,150 @@ function UserProfile() {
                                                                         <span className="me-3">👍 {post.likes?.length || 0}</span>
                                                                         <span>💬 {post.comments?.length || 0}</span>
                                                                     </div>
+
+                                                                    {/* Comments Section */}
+                                                                    <div className="mt-4">
+                                                                        <input
+                                                                            type="text"
+                                                                            className="form-control form-control-sm"
+                                                                            placeholder="Write a comment..."
+                                                                            value={commentDrafts[post._id] || ""}
+                                                                            onChange={(e) =>
+                                                                                setCommentDrafts((prev) => ({
+                                                                                    ...prev,
+                                                                                    [post._id]: e.target.value,
+                                                                                }))
+                                                                            }
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === "Enter") {
+                                                                                    e.preventDefault();
+                                                                                    handleAddComment(post._id);
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                        {post.comments?.length > 0 && (
+                                                                            <ul className="mt-3 list-unstyled">
+                                                                                {post.comments.map((comment) => (
+                                                                                    <li
+                                                                                        key={comment._id}
+                                                                                        className="border rounded p-3 mb-2 bg-light"
+                                                                                    >
+                                                                                        <div className="d-flex gap-2">
+                                                                                            {/* Avatar */}
+                                                                                            {comment.author?.avatar ? (
+                                                                                                <Image
+                                                                                                    src={comment.author.avatar}
+                                                                                                    roundedCircle
+                                                                                                    width={32}
+                                                                                                    height={32}
+                                                                                                    style={{
+                                                                                                        objectFit: "cover",
+                                                                                                        flexShrink: 0,
+                                                                                                    }}
+                                                                                                />
+                                                                                            ) : (
+                                                                                                <div
+                                                                                                    className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                                                                    style={{
+                                                                                                        width: 32,
+                                                                                                        height: 32,
+                                                                                                        fontSize: "0.9rem",
+                                                                                                        flexShrink: 0,
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {(comment.author?.username?.charAt(0) ||
+                                                                                                        comment.author?.email?.charAt(0) ||
+                                                                                                        "U").toUpperCase()}
+                                                                                                </div>
+                                                                                            )}
+                                                                                            {/* Comment Content */}
+                                                                                            <div className="flex-grow-1">
+                                                                                                <div className="d-flex justify-content-between align-items-start mb-1">
+                                                                                                    <div>
+                                                                                                        <strong className="d-block">
+                                                                                                            {comment.author?.username ||
+                                                                                                                comment.author?.email ||
+                                                                                                                "Anonymous"}
+                                                                                                        </strong>
+                                                                                                        <span
+                                                                                                            className="text-muted"
+                                                                                                            style={{ fontSize: "0.75rem" }}
+                                                                                                        >
+                                                                                                            {formatDateTime(comment.createdAt)}
+                                                                                                        </span>
+                                                                                                    </div>
+                                                                                                    <div className="d-flex align-items-center gap-2">
+                                                                                                        {comment.author?._id === user?._id && (
+                                                                                                            <>
+                                                                                                                {editingCommentId === comment._id ? (
+                                                                                                                    <>
+                                                                                                                        <button
+                                                                                                                            className="btn btn-link btn-sm p-0"
+                                                                                                                            style={{ fontSize: "0.85rem" }}
+                                                                                                                            onClick={() => saveEditComment(post._id, comment._id)}
+                                                                                                                        >
+                                                                                                                            Save
+                                                                                                                        </button>
+                                                                                                                        <button
+                                                                                                                            className="btn btn-link btn-sm p-0 text-secondary"
+                                                                                                                            style={{ fontSize: "0.85rem" }}
+                                                                                                                            onClick={cancelEditComment}
+                                                                                                                        >
+                                                                                                                            Cancel
+                                                                                                                        </button>
+                                                                                                                    </>
+                                                                                                                ) : (
+                                                                                                                    <button
+                                                                                                                        className="btn btn-link btn-sm p-0"
+                                                                                                                        style={{ fontSize: "0.85rem" }}
+                                                                                                                        onClick={() => startEditComment(comment)}
+                                                                                                                    >
+                                                                                                                        Edit
+                                                                                                                    </button>
+                                                                                                                )}
+                                                                                                            </>
+                                                                                                        )}
+                                                                                                        {(comment.author?._id === user?._id || post.author?._id === user?._id) && (
+                                                                                                            <button
+                                                                                                                className="btn btn-link btn-sm p-0 text-danger"
+                                                                                                                style={{ fontSize: "0.85rem" }}
+                                                                                                                onClick={() => handleDeleteComment(post._id, comment._id)}
+                                                                                                            >
+                                                                                                                Delete
+                                                                                                            </button>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                {editingCommentId === comment._id ? (
+                                                                                                    <input
+                                                                                                        type="text"
+                                                                                                        className="form-control form-control-sm"
+                                                                                                        value={editingCommentDrafts[comment._id] || ""}
+                                                                                                        onChange={(e) =>
+                                                                                                            setEditingCommentDrafts((prev) => ({
+                                                                                                                ...prev,
+                                                                                                                [comment._id]: e.target.value,
+                                                                                                            }))
+                                                                                                        }
+                                                                                                        onKeyDown={(e) => {
+                                                                                                            if (e.key === "Enter") {
+                                                                                                                e.preventDefault();
+                                                                                                                saveEditComment(post._id, comment._id);
+                                                                                                            }
+                                                                                                        }}
+                                                                                                    />
+                                                                                                ) : (
+                                                                                                    <div style={{ fontSize: "0.9rem" }}>
+                                                                                                        {comment.content}
+                                                                                                    </div>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                ))}
+                                                                            </ul>
+                                                                        )}
+                                                                    </div>
                                                                 </>
                                                             )}
 
@@ -1147,7 +1393,7 @@ function UserProfile() {
                             >
                                 <h5 className="modal-title fw-bold">
                                     <i className="bi bi-image me-2 text-primary"></i>
-                                    Thay đổi ảnh đại diện
+                                    Change Avatar
                                 </h5>
                                 <button
                                     type="button"
@@ -1264,7 +1510,7 @@ function UserProfile() {
                                     />
                                     <p className="text-muted small mt-2 mb-0 text-center">
                                         <i className="bi bi-info-circle me-1"></i>
-                                        JPG, PNG, GIF - Tối đa 5MB
+                                        JPG, PNG, GIF - Maximum 5MB
                                     </p>
                                 </div>
 
@@ -1277,7 +1523,7 @@ function UserProfile() {
                                         style={{ borderRadius: "10px" }}
                                     >
                                         <i className="bi bi-x-circle me-2"></i>
-                                        Hủy
+                                        Cancel
                                     </button>
                                     <button
                                         onClick={handleAvatarUpload}
@@ -1329,7 +1575,7 @@ function UserProfile() {
                             >
                                 <h5 className="modal-title fw-bold">
                                     <i className="bi bi-key me-2 text-primary"></i>
-                                    Đổi mật khẩu
+                                    Change Password
                                 </h5>
                                 <button
                                     type="button"
@@ -1419,7 +1665,7 @@ function UserProfile() {
                                         style={{ borderRadius: "10px" }}
                                     >
                                         <i className="bi bi-x-circle me-2"></i>
-                                        Hủy
+                                        Cancel
                                     </button>
                                     <button
                                         onClick={handleSubmitChangePassword}
