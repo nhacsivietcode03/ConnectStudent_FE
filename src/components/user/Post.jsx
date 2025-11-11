@@ -88,7 +88,7 @@ function Post() {
             setPosts((prev) => [data, ...prev]);
             resetCreateForm();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể đăng bài";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot create post";
             alert(errorMessage);
         } finally {
             setCreating(false);
@@ -116,18 +116,18 @@ function Post() {
             setPosts((prev) => prev.map((p) => (p._id === data._id ? data : p)));
             resetEditForm();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bài viết";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot update post";
             alert(errorMessage);
         }
     };
 
     const handleDeletePost = async (postId) => {
-        if (!window.confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return;
+        if (!window.confirm("Are you sure you want to delete this post?")) return;
         try {
             await deletePost(postId);
             setPosts((prev) => prev.filter((p) => p._id !== postId));
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bài viết";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot delete post";
             alert(errorMessage);
         }
     };
@@ -146,13 +146,13 @@ function Post() {
             );
             setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot add comment";
             alert(errorMessage);
         }
     };
 
     const handleDeleteComment = async (postId, commentId) => {
-        const ok = window.confirm("Bạn có chắc chắn muốn xóa bình luận này?");
+        const ok = window.confirm("Are you sure you want to delete this comment?");
         if (!ok) return;
         try {
             await deleteComment(postId, commentId);
@@ -169,7 +169,7 @@ function Post() {
                 )
             );
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bình luận";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot delete comment";
             alert(errorMessage);
         }
     };
@@ -203,7 +203,7 @@ function Post() {
             );
             setEditingCommentId(null);
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bình luận";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot update comment";
             alert(errorMessage);
         }
     };
@@ -215,7 +215,7 @@ function Post() {
                 prev.map((post) => (post._id === postId ? data : post))
             );
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể thích bài viết";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot like post";
             alert(errorMessage);
         }
     };
@@ -366,18 +366,18 @@ function Post() {
                     <Form onSubmit={handleCreatePost}>
                         <Form.Group className="mb-3" controlId="postContent">
                             <Form.Label className="fw-semibold">
-                                Đăng bài viết
+                                Create Post
                             </Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={3}
-                                placeholder="Bạn đang nghĩ gì?"
+                                placeholder="What's on your mind?"
                                 value={newContent}
                                 onChange={(e) => setNewContent(e.target.value)}
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Ảnh hoặc video</Form.Label>
+                            <Form.Label>Image or video</Form.Label>
                             <Form.Control
                                 type="file"
                                 multiple
@@ -391,7 +391,7 @@ function Post() {
                         </Form.Group>
                         <div className="d-flex justify-content-end">
                             <Button type="submit" disabled={creating}>
-                                {creating ? "Đang đăng..." : "Đăng bài"}
+                                {creating ? "Posting..." : "Post"}
                             </Button>
                         </div>
                     </Form>
@@ -437,14 +437,14 @@ function Post() {
                                             size="sm"
                                             onClick={() => startEditing(post)}
                                         >
-                                            Sửa
+                                            Edit
                                         </Button>
                                         <Button
                                             variant="outline-danger"
                                             size="sm"
                                             onClick={() => handleDeletePost(post._id)}
                                         >
-                                            Xóa
+                                            Delete
                                         </Button>
                                     </div>
                                 )}
@@ -464,7 +464,7 @@ function Post() {
                                             style={{ borderRadius: "20px" }}
                                         >
                                             <span className="me-1">👍</span>
-                                            Thích
+                                            Like
                                         </Button>
                                         <Button
                                             variant="outline-secondary"
@@ -473,7 +473,7 @@ function Post() {
                                             style={{ borderRadius: "20px" }}
                                         >
                                             <span className="me-1">💬</span>
-                                            Bình luận
+                                            Comment
                                         </Button>
                                         {post.likes?.length > 0 && (
                                             <span
@@ -485,7 +485,7 @@ function Post() {
                                                 }}
                                                 onClick={() => handleShowLikes(post)}
                                             >
-                                                {post.likes.length} lượt thích
+                                                {post.likes.length} likes
                                             </span>
                                         )}
                                     </div>
@@ -522,14 +522,14 @@ function Post() {
                                     </Form.Group>
                                     <div className="d-flex gap-2">
                                         <Button type="submit" variant="primary">
-                                            Lưu thay đổi
+                                            Save changes
                                         </Button>
                                         <Button
                                             type="button"
                                             variant="outline-secondary"
                                             onClick={resetEditForm}
                                         >
-                                            Hủy
+                                            Cancel
                                         </Button>
                                     </div>
                                 </Form>
@@ -539,7 +539,7 @@ function Post() {
                                 <Form.Control
                                     size="sm"
                                     type="text"
-                                    placeholder="Viết bình luận..."
+                                    placeholder="Write a comment..."
                                     value={commentDrafts[post._id] || ""}
                                     onChange={(e) =>
                                         setCommentDrafts((prev) => ({
@@ -617,7 +617,7 @@ function Post() {
                                                                                     style={{ fontSize: "0.85rem" }}
                                                                                     onClick={() => saveEditComment(post._id, comment._id)}
                                                                                 >
-                                                                                    Lưu
+                                                                                    Save
                                                                                 </Button>
                                                                                 <Button
                                                                                     size="sm"
@@ -626,7 +626,7 @@ function Post() {
                                                                                     style={{ fontSize: "0.85rem" }}
                                                                                     onClick={cancelEditComment}
                                                                                 >
-                                                                                    Hủy
+                                                                                    Cancel
                                                                                 </Button>
                                                                             </>
                                                                         ) : (
@@ -637,7 +637,7 @@ function Post() {
                                                                                 style={{ fontSize: "0.85rem" }}
                                                                                 onClick={() => startEditComment(comment)}
                                                                             >
-                                                                                Sửa
+                                                                                Edit
                                                                             </Button>
                                                                         )}
                                                                     </>
@@ -650,7 +650,7 @@ function Post() {
                                                                         style={{ fontSize: "0.85rem" }}
                                                                         onClick={() => handleDeleteComment(post._id, comment._id)}
                                                                     >
-                                                                        Xóa
+                                                                        Delete
                                                                     </Button>
                                                                 )}
                                                             </div>
@@ -699,12 +699,12 @@ function Post() {
                 <Modal.Header closeButton>
                     <Modal.Title>
                         <span className="me-2">👍</span>
-                        Người đã thích
+                        People who liked
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ maxHeight: "400px", overflowY: "auto" }}>
                     {selectedPostLikes.length === 0 ? (
-                        <p className="text-muted text-center">Chưa có ai thích bài viết này</p>
+                        <p className="text-muted text-center">No one has liked this post yet</p>
                     ) : (
                         <div className="list-unstyled mb-0">
                             {selectedPostLikes.map((likeUser) => (
@@ -755,7 +755,7 @@ function Post() {
                         variant="secondary"
                         onClick={() => setShowLikesModal(false)}
                     >
-                        Đóng
+                        Close
                     </Button>
                 </Modal.Footer>
             </Modal>

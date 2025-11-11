@@ -29,12 +29,13 @@ function FriendsPage() {
 
     const handleUnfollow = async (userId) => {
         try {
-            const ok = window.confirm("Bạn có chắc muốn hủy theo dõi người này?");
+            const ok = window.confirm("Are you sure you want to unfollow this user?");
             if (!ok) return;
             await unfollow(userId);
             setFollowing((prev) => prev.filter((f) => f.receiver?._id !== userId));
         } catch (e) {
-            console.error("Failed to unfollow", e);
+            const errorMessage = e.response?.data?.message || "Cannot unfollow";
+            alert(errorMessage);
         }
     };
 
@@ -43,18 +44,20 @@ function FriendsPage() {
             await sendFollowRequest(userId);
             setRequested((prev) => ({ ...prev, [userId]: true }));
         } catch (e) {
-            // noop
+            const errorMessage = e.response?.data?.message || "Cannot send follow request";
+            alert(errorMessage);
         }
     };
 
     const handleRemoveFollower = async (userId) => {
         try {
-            const ok = window.confirm("Bạn có chắc muốn xóa người này khỏi danh sách theo dõi bạn?");
+            const ok = window.confirm("Are you sure you want to remove this user from your followers?");
             if (!ok) return;
             await removeFollower(userId);
             setFollowers((prev) => prev.filter((f) => f.sender?._id !== userId));
         } catch (e) {
-            console.error("Failed to remove follower", e);
+            const errorMessage = e.response?.data?.message || "Cannot remove follower";
+            alert(errorMessage);
         }
     };
 
@@ -82,17 +85,17 @@ function FriendsPage() {
             <Container className="my-4" style={{ maxWidth: "900px" }}>
                 <Card className="mb-4 shadow-sm">
                     <Card.Body>
-                        <h5 className="mb-3">Đang theo dõi</h5>
+                        <h5 className="mb-3">Following</h5>
                         {loading ? (
-                            <div className="text-muted">Đang tải...</div>
+                            <div className="text-muted">Loading...</div>
                         ) : following.length === 0 ? (
-                            <div className="text-muted">Bạn chưa theo dõi ai.</div>
+                            <div className="text-muted">You are not following anyone.</div>
                         ) : (
                             following.map((f) =>
                                 renderUserRow(
                                     f.receiver || {},
                                     <Button size="sm" variant="outline-danger" onClick={() => handleUnfollow(f.receiver?._id)}>
-                                        Hủy theo dõi
+                                        Unfollow
                                     </Button>,
                                     f._id
                                 )
@@ -103,11 +106,11 @@ function FriendsPage() {
 
                 <Card className="shadow-sm">
                     <Card.Body>
-                        <h5 className="mb-3">Người theo dõi bạn</h5>
+                        <h5 className="mb-3">Followers</h5>
                         {loading ? (
-                            <div className="text-muted">Đang tải...</div>
+                            <div className="text-muted">Loading...</div>
                         ) : followers.length === 0 ? (
-                            <div className="text-muted">Chưa có ai theo dõi bạn.</div>
+                            <div className="text-muted">No one is following you yet.</div>
                         ) : (
                             followers.map((f) => {
                                 const u = f.sender || {};
@@ -121,14 +124,14 @@ function FriendsPage() {
                                             disabled={isFollowingBack || requested[u._id]}
                                             onClick={() => handleFollowBack(u._id)}
                                         >
-                                            {isFollowingBack ? "Đang theo dõi" : requested[u._id] ? "Đã gửi" : "Theo dõi lại"}
+                                            {isFollowingBack ? "Following" : requested[u._id] ? "Sent" : "Follow back"}
                                         </Button>
                                         <Button
                                             size="sm"
                                             variant="outline-danger"
                                             onClick={() => handleRemoveFollower(u._id)}
                                         >
-                                            Xóa người theo dõi
+                                            Remove follower
                                         </Button>
                                     </div>,
                                     f._id

@@ -50,7 +50,8 @@ function UserHomePage() {
             await acceptFollowRequest(id);
             setRequests((prev) => prev.filter((r) => r._id !== id));
         } catch (e) {
-            console.error("Accept failed", e);
+            const errorMessage = e.response?.data?.message || "Cannot accept request";
+            alert(errorMessage);
         }
     };
 
@@ -59,7 +60,8 @@ function UserHomePage() {
             await rejectFollowRequest(id);
             setRequests((prev) => prev.filter((r) => r._id !== id));
         } catch (e) {
-            console.error("Reject failed", e);
+            const errorMessage = e.response?.data?.message || "Cannot reject request";
+            alert(errorMessage);
         }
     };
 
@@ -99,8 +101,8 @@ function UserHomePage() {
                                             </div>
                                         </div>
                                         <div className="d-flex gap-2">
-                                            <Button size="sm" variant="primary" onClick={() => handleAccept(req._id)}>Chấp nhận</Button>
-                                            <Button size="sm" variant="outline-secondary" onClick={() => handleReject(req._id)}>Từ chối</Button>
+                                            <Button size="sm" variant="primary" onClick={() => handleAccept(req._id)}>Accept</Button>
+                                            <Button size="sm" variant="outline-secondary" onClick={() => handleReject(req._id)}>Reject</Button>
                                         </div>
                                     </div>
                                 ))}

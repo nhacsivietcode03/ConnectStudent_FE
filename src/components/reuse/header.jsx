@@ -101,14 +101,14 @@ function Header() {
         }
     };
 
-	const goToPostFromNotification = (notification) => {
-		const postId = notification?.post?._id || notification?.post;
-		if (postId) {
-			navigate(`/posts/${postId}`);
-		} else {
-			navigate("/");
-		}
-	};
+    const goToPostFromNotification = (notification) => {
+        const postId = notification?.post?._id || notification?.post;
+        if (postId) {
+            navigate(`/posts/${postId}`);
+        } else {
+            navigate("/");
+        }
+    };
 
     const formatTimeAgo = (date) => {
         if (!date) return "";
@@ -116,31 +116,42 @@ function Header() {
         const then = new Date(date);
         const diffInSeconds = Math.floor((now - then) / 1000);
 
-        if (diffInSeconds < 60) return "Vừa xong";
+        if (diffInSeconds < 60) return "Just now";
         if (diffInSeconds < 3600)
-            return `${Math.floor(diffInSeconds / 60)} phút trước`;
+            return `${Math.floor(diffInSeconds / 60)} minutes ago`;
         if (diffInSeconds < 86400)
-            return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
-        return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+            return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+        return `${Math.floor(diffInSeconds / 86400)} days ago`;
     };
 
     const getNotificationText = (notification) => {
         const senderName =
             notification.sender?.username ||
             notification.sender?.email ||
-            "Ai đó";
+            "Someone";
         if (notification.type === "like") {
-            return `${senderName} đã thích bài viết của bạn`;
+            return `${senderName} liked your post`;
         } else if (notification.type === "comment") {
-            return `${senderName} đã bình luận bài viết của bạn`;
+            return `${senderName} commented on your post`;
+        } else if (notification.type === "reply") {
+            return `${senderName} replied to your comment`;
         } else if (notification.type === "follow_request") {
-            return `${senderName} đã gửi lời mời theo dõi`;
+            return `${senderName} sent you a follow request`;
         } else if (notification.type === "follow_accept") {
-            return `${senderName} đã chấp nhận lời mời theo dõi của bạn`;
+            return `${senderName} accepted your follow request`;
         } else if (notification.type === "follow_reject") {
-            return `${senderName} đã từ chối lời mời theo dõi của bạn`;
+            return `${senderName} rejected your follow request`;
+        } else if (notification.type === "banned") {
+            const reason = notification.metadata?.reason || "Violation of terms";
+            return `Your account has been restricted. Reason: ${reason}`;
+        } else if (notification.type === "unbanned") {
+            return `Your account has been restored with full access`;
+        } else if (notification.type === "role_updated") {
+            const oldRole = notification.metadata?.oldRole === "admin" ? "Administrator" : "Student";
+            const newRole = notification.metadata?.newRole === "admin" ? "Administrator" : "Student";
+            return `Your role has been changed from ${oldRole} to ${newRole}`;
         }
-        return "Bạn có thông báo mới";
+        return "You have a new notification";
     };
 
     const handleLogout = async () => {
@@ -185,7 +196,8 @@ function Header() {
             await sendFollowRequest(targetId);
             setSearchResults((prev) => prev.map((u) => (u._id === targetId ? { ...u, __requested: true } : u)));
         } catch (e) {
-            // noop
+            const errorMessage = e.response?.data?.message || "Cannot send follow request";
+            alert(errorMessage);
         }
     };
 
@@ -227,7 +239,7 @@ function Header() {
                         <input
                             type="text"
                             className="form-control form-control-sm"
-                            placeholder="Tìm kiếm người dùng..."
+                            placeholder="Search users..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onFocus={() => searchResults.length > 0 && setShowSearch(true)}
@@ -239,9 +251,9 @@ function Header() {
                                 style={{ position: "absolute", top: "110%", left: 0, right: 0, zIndex: 1050, maxHeight: 320, overflowY: "auto" }}
                             >
                                 {searching ? (
-                                    <div className="p-2 text-muted">Đang tìm...</div>
+                                    <div className="p-2 text-muted">Searching...</div>
                                 ) : searchResults.length === 0 ? (
-                                    <div className="p-2 text-muted">Không tìm thấy người dùng</div>
+                                    <div className="p-2 text-muted">No users found</div>
                                 ) : (
                                     searchResults.map((u) => (
                                         <div key={u._id} className="d-flex align-items-center justify-content-between p-2 border-bottom">
@@ -263,7 +275,7 @@ function Header() {
                                                 disabled={u.__requested}
                                                 onClick={() => handleFollow(u._id)}
                                             >
-                                                {u.__requested ? "Đã gửi" : "Follow"}
+                                                {u.__requested ? "Sent" : "Follow"}
                                             </button>
                                         </div>
                                     ))
@@ -324,14 +336,14 @@ function Header() {
                             align="end"
                         >
                             <div className="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-                                <h6 className="mb-0 fw-bold">Thông báo</h6>
+                                <h6 className="mb-0 fw-bold">Notifications</h6>
                                 {unreadCount > 0 && (
                                     <button
                                         className="btn btn-link btn-sm p-0 text-primary"
                                         onClick={handleMarkAllAsRead}
                                         style={{ fontSize: "0.85rem" }}
                                     >
-                                        Đánh dấu tất cả đã đọc
+                                        Mark all as read
                                     </button>
                                 )}
                             </div>
@@ -341,18 +353,17 @@ function Header() {
                                         className="bi bi-bell-slash"
                                         style={{ fontSize: "2rem" }}
                                     ></i>
-                                    <p className="mt-2 mb-0">Chưa có thông báo</p>
+                                    <p className="mt-2 mb-0">No notifications</p>
                                 </div>
                             ) : (
                                 <>
                                     {notifications.map((notification) => (
                                         <Dropdown.Item
                                             key={notification._id}
-                                            onClick={() =>
-												{
-													handleNotificationClick(notification);
-													goToPostFromNotification(notification);
-												}
+                                            onClick={() => {
+                                                handleNotificationClick(notification);
+                                                goToPostFromNotification(notification);
+                                            }
                                             }
                                             style={{
                                                 backgroundColor: notification.read

@@ -5,7 +5,7 @@ import { userAPI } from "../../api/user.api";
 import { authAPI } from "../../api/auth.api";
 import Header from "../reuse/header";
 import { Image } from "react-bootstrap";
-import { fetchPosts, createPost, updatePost, deletePost, createComment } from "../../api/post.api";
+import { fetchPosts, createPost, updatePost, deletePost } from "../../api/post.api";
 
 function UserProfile() {
     const navigate = useNavigate();
@@ -50,7 +50,6 @@ function UserProfile() {
     const [editKeepMedia, setEditKeepMedia] = useState([]);
     const fileInputRef = React.useRef(null);
     const editFileInputRef = React.useRef(null);
-    const [commentDrafts, setCommentDrafts] = useState({});
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -70,12 +69,12 @@ function UserProfile() {
                         createdAt: profileData.createdAt || "",
                     });
                 } else {
-                    setError("Không thể tải thông tin người dùng.");
+                    setError("Cannot load user information.");
                 }
             } catch (err) {
                 const errorMessage =
                     err.response?.data?.message ||
-                    "Không thể tải thông tin người dùng. Vui lòng thử lại sau.";
+                    "Cannot load user information. Please try again later.";
                 setError(errorMessage);
                 console.error("Error fetching profile:", err);
                 // Nếu lỗi 401 redirect về login
@@ -138,7 +137,7 @@ function UserProfile() {
     const renderEditMedia = (post) => {
         return (
             <div className="mb-3">
-                <div className="fw-semibold mb-1">Ảnh/Video hiện có</div>
+                <div className="fw-semibold mb-1">Current Images/Videos</div>
                 <div className="d-flex flex-wrap gap-3">
                     {post.media?.map((item) => {
                         const checked = editKeepMedia.includes(item.publicId);
@@ -162,7 +161,7 @@ function UserProfile() {
                                         }}
                                     />
                                     <label className="form-check-label" htmlFor={`${post._id}-${item.publicId}`}>
-                                        Giữ lại
+                                        Keep
                                     </label>
                                 </div>
                                 {item.resourceType === "video" ? (
@@ -191,7 +190,7 @@ function UserProfile() {
         if (!files.length) return null;
         return (
             <div className="mt-2 d-flex flex-column gap-2">
-                <div className="fw-semibold">Tệp đính kèm mới</div>
+                <div className="fw-semibold">New Attachments</div>
                 <ul className="list-unstyled mb-0">
                     {files.map((file, idx) => (
                         <li
@@ -245,7 +244,7 @@ function UserProfile() {
             setMyPosts((prev) => [data, ...prev]);
             resetCreateForm();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể đăng bài";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot create post";
             alert(errorMessage);
         } finally {
             setCreating(false);
@@ -273,18 +272,18 @@ function UserProfile() {
             setMyPosts((prev) => prev.map((p) => (p._id === data._id ? data : p)));
             resetEditForm();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bài viết";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot update post";
             alert(errorMessage);
         }
     };
 
     const handleDeletePost = async (postId) => {
-        if (!window.confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return;
+        if (!window.confirm("Are you sure you want to delete this post?")) return;
         try {
             await deletePost(postId);
             setMyPosts((prev) => prev.filter((p) => p._id !== postId));
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bài viết";
+            const errorMessage = error.response?.data?.message || error.message || "Cannot delete post";
             alert(errorMessage);
         }
     };
@@ -301,10 +300,10 @@ function UserProfile() {
         // Validate required fields
         const errors = {};
         if (!editData.username || !editData.username.trim()) {
-            errors.username = "Vui lòng nhập tên người dùng!";
+            errors.username = "Please enter username!";
         }
         if (!editData.email || !editData.email.trim()) {
-            errors.email = "Vui lòng nhập email!";
+            errors.email = "Please enter email!";
         }
         setFieldErrors(errors);
         if (Object.keys(errors).length > 0) {
@@ -328,10 +327,10 @@ function UserProfile() {
                 setUserData(editData);
                 setIsEditing(false);
                 setEditData(null);
-                setSuccessMsg("Cập nhật thông tin thành công!");
+                setSuccessMsg("Information updated successfully!");
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "Không thể cập nhật thông tin. Vui lòng thử lại sau.";
+            const errorMessage = err.response?.data?.message || "Cannot update information. Please try again later.";
             setError(errorMessage);
             alert(errorMessage);
         } finally {
@@ -377,16 +376,16 @@ function UserProfile() {
 
         // Validate current password
         if (!passwordData.currentPassword || !passwordData.currentPassword.trim()) {
-            errors.currentPassword = "Vui lòng nhập mật khẩu hiện tại!";
+            errors.currentPassword = "Please enter current password!";
         }
 
         // Validate new password
         if (!passwordData.newPassword || !passwordData.newPassword.trim()) {
-            errors.newPassword = "Vui lòng nhập mật khẩu mới!";
+            errors.newPassword = "Please enter new password!";
         } else {
             // Check minimum length
             if (passwordData.newPassword.length < 6) {
-                errors.newPassword = "Mật khẩu mới phải có ít nhất 6 ký tự!";
+                errors.newPassword = "New password must be at least 6 characters!";
             } else {
                 // Check for at least one uppercase letter
                 const hasUpperCase = /[A-Z]/.test(passwordData.newPassword);
@@ -396,18 +395,18 @@ function UserProfile() {
                 );
 
                 if (!hasUpperCase) {
-                    errors.newPassword = "Mật khẩu mới phải có ít nhất 1 ký tự hoa!";
+                    errors.newPassword = "New password must have at least 1 uppercase letter!";
                 } else if (!hasSpecialChar) {
-                    errors.newPassword = "Mật khẩu mới phải có ít nhất 1 ký tự đặc biệt!";
+                    errors.newPassword = "New password must have at least 1 special character!";
                 }
             }
         }
 
         // Validate confirm password
         if (!passwordData.confirmPassword || !passwordData.confirmPassword.trim()) {
-            errors.confirmPassword = "Vui lòng xác nhận mật khẩu mới!";
+            errors.confirmPassword = "Please confirm new password!";
         } else if (passwordData.newPassword !== passwordData.confirmPassword) {
-            errors.confirmPassword = "Mật khẩu xác nhận không khớp!";
+            errors.confirmPassword = "Confirm password does not match!";
         }
 
         // Check if new password is same as current
@@ -416,7 +415,7 @@ function UserProfile() {
             passwordData.newPassword &&
             passwordData.currentPassword === passwordData.newPassword
         ) {
-            errors.newPassword = "Mật khẩu mới phải khác mật khẩu hiện tại!";
+            errors.newPassword = "New password must be different from current password!";
         }
 
         setPasswordErrors(errors);
@@ -435,7 +434,7 @@ function UserProfile() {
             );
 
             if (response.success) {
-                setSuccessMsg("Đổi mật khẩu thành công!");
+                setSuccessMsg("Password changed successfully!");
                 setShowChangePasswordModal(false);
                 setPasswordData({
                     currentPassword: "",
@@ -445,7 +444,7 @@ function UserProfile() {
                 setPasswordErrors({});
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng thử lại sau.";
+            const errorMessage = err.response?.data?.message || "Cannot change password. Please try again later.";
             setError(errorMessage);
             alert(errorMessage);
         } finally {
@@ -517,13 +516,13 @@ function UserProfile() {
                         avatar: response.data.avatar,
                     }));
                 }
-                setSuccessMsg("Upload avatar thành công!");
+                setSuccessMsg("Avatar uploaded successfully!");
                 setShowAvatarModal(false);
                 setAvatarPreview(null);
                 setSelectedFile(null);
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "Không thể upload avatar. Vui lòng thử lại sau.";
+            const errorMessage = err.response?.data?.message || "Cannot upload avatar. Please try again later.";
             setError(errorMessage);
             alert(errorMessage);
         } finally {
@@ -559,7 +558,7 @@ function UserProfile() {
                     >
                         <span className="visually-hidden">Loading...</span>
                     </div>
-                    <p className="text-white fs-5">Đang tải thông tin...</p>
+                    <p className="text-white fs-5">Loading information...</p>
                 </div>
             </div>
         );
@@ -691,7 +690,7 @@ function UserProfile() {
                                                 className="mb-2 fw-bold"
                                                 style={{ fontSize: "2rem" }}
                                             >
-                                                {userData.username || "Chưa có tên"}
+                                                {userData.username || "No name"}
                                             </h2>
                                             <p
                                                 className="mb-1"
@@ -727,7 +726,7 @@ function UserProfile() {
                                             style={{ borderRadius: "10px", border: "none" }}
                                         >
                                             <i className="bi bi-key me-2"></i>
-                                            Đổi mật khẩu
+                                            Change Password
                                         </button>
                                         <button
                                             onClick={handleEdit}
@@ -739,7 +738,7 @@ function UserProfile() {
                                                 className={`bi ${isEditing ? "bi-x-circle" : "bi-pencil"
                                                     } me-2`}
                                             ></i>
-                                            {isEditing ? "Hủy" : "Chỉnh sửa"}
+                                            {isEditing ? "Cancel" : "Edit Profile"}
                                         </button>
                                     </div>
                                 </div>
@@ -754,7 +753,7 @@ function UserProfile() {
                             <div className="card-body p-4 p-md-5">
                                 <h4 className="mb-4 fw-bold text-primary">
                                     <i className="bi bi-person-circle me-2"></i>
-                                    Thông tin cá nhân
+                                    Personal Information
                                 </h4>
 
                                 {/* Username Field */}
@@ -764,7 +763,7 @@ function UserProfile() {
                                         style={{ fontSize: "1rem" }}
                                     >
                                         <i className="bi bi-person me-2 text-primary"></i>
-                                        Tên người dùng
+                                        Username
                                     </label>
                                     {isEditing ? (
                                         <>
@@ -802,7 +801,7 @@ function UserProfile() {
                                             style={{ borderRadius: "10px" }}
                                         >
                                             <p className="mb-0 fw-medium">
-                                                {userData.username || "Chưa cập nhật"}
+                                                {userData.username || "Not updated"}
                                             </p>
                                         </div>
                                     )}
@@ -837,7 +836,7 @@ function UserProfile() {
                                         style={{ fontSize: "1rem" }}
                                     >
                                         <i className="bi bi-book me-2 text-primary"></i>
-                                        Chuyên ngành
+                                        Major
                                     </label>
                                     {isEditing ? (
                                         <input
@@ -873,7 +872,7 @@ function UserProfile() {
                                         style={{ fontSize: "1rem" }}
                                     >
                                         <i className="bi bi-card-text me-2 text-primary"></i>
-                                        Giới thiệu
+                                        Bio
                                     </label>
                                     {isEditing ? (
                                         <textarea
@@ -923,12 +922,12 @@ function UserProfile() {
                                                         className="spinner-border spinner-border-sm me-2"
                                                         role="status"
                                                     ></span>
-                                                    Đang lưu...
+                                                    Saving...
                                                 </>
                                             ) : (
                                                 <>
                                                     <i className="bi bi-check-circle me-2"></i>
-                                                    Lưu thay đổi
+                                                    Save changes
                                                 </>
                                             )}
                                         </button>
@@ -938,7 +937,7 @@ function UserProfile() {
                                             style={{ borderRadius: "12px", fontSize: "1rem" }}
                                         >
                                             <i className="bi bi-x-circle me-2"></i>
-                                            Hủy
+                                            Cancel
                                         </button>
                                     </div>
                                 )}
@@ -947,310 +946,182 @@ function UserProfile() {
                     </div>
                 </div>
 
-            {/* My Posts */}
-            <div className="container pb-4">
-                <div className="row justify-content-center">
-                    <div className="col-lg-10 col-xl-8">
-                        <div
-                            className="card shadow-lg mt-2"
-                            style={{ borderRadius: "20px", border: "none" }}
-                        >
-                            <div className="card-body p-4 p-md-5">
-                                <h4 className="mb-4 fw-bold text-primary d-flex align-items-center">
-                                    <i className="bi bi-chat-left-text me-2"></i>
-                                    Bài viết của tôi
-                                </h4>
-                                {/* Create post */}
-                                <form onSubmit={handleCreatePost} className="mb-4">
-                                    <div className="mb-3">
-                                        <label className="form-label fw-semibold">Đăng bài viết</label>
-                                        <textarea
-                                            className="form-control"
-                                            rows={3}
-                                            placeholder="Bạn đang nghĩ gì?"
-                                            value={newContent}
-                                            onChange={(e) => setNewContent(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="form-label">Ảnh hoặc video</label>
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*,video/*"
-                                            ref={fileInputRef}
-                                            className="form-control"
-                                            onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
-                                        />
-                                        {renderNewFilesPreview(newFiles, setNewFiles)}
-                                    </div>
-                                    <div className="d-flex justify-content-end">
-                                        <button type="submit" className="btn btn-primary" disabled={creating}>
-                                            {creating ? "Đang đăng..." : "Đăng bài"}
-                                        </button>
-                                    </div>
-                                </form>
-
-                                {loadingMyPosts ? (
-                                    <div className="d-flex justify-content-center py-4">
-                                        <div className="spinner-border" role="status">
-                                            <span className="visually-hidden">Loading...</span>
+                {/* My Posts */}
+                <div className="container pb-4">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-10 col-xl-8">
+                            <div
+                                className="card shadow-lg mt-2"
+                                style={{ borderRadius: "20px", border: "none" }}
+                            >
+                                <div className="card-body p-4 p-md-5">
+                                    <h4 className="mb-4 fw-bold text-primary d-flex align-items-center">
+                                        <i className="bi bi-chat-left-text me-2"></i>
+                                        My Posts
+                                    </h4>
+                                    {/* Create post */}
+                                    <form onSubmit={handleCreatePost} className="mb-4">
+                                        <div className="mb-3">
+                                            <label className="form-label fw-semibold">Create Post</label>
+                                            <textarea
+                                                className="form-control"
+                                                rows={3}
+                                                placeholder="What's on your mind?"
+                                                value={newContent}
+                                                onChange={(e) => setNewContent(e.target.value)}
+                                            />
                                         </div>
-                                    </div>
-                                ) : myPosts.length === 0 ? (
-                                    <p className="text-muted mb-0">Bạn chưa có bài viết nào.</p>
-                                ) : (
-                                    <div className="d-flex flex-column gap-4">
-                                        {myPosts.map((post) => {
-                                            const isEditingPost = editingPostId === post._id;
-                                            return (
-                                                <div key={post._id} className="card shadow-sm">
-                                                    <div className="card-body">
-                                                        <div className="d-flex justify-content-between">
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                {post.author?.avatar ? (
-                                                                    <Image
-                                                                        src={post.author.avatar}
-                                                                        roundedCircle
-                                                                        width={40}
-                                                                        height={40}
-                                                                        style={{ objectFit: "cover" }}
-                                                                    />
-                                                                ) : (
-                                                                    <div
-                                                                        className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                                                                        style={{ width: 40, height: 40 }}
-                                                                    >
-                                                                        {(post.author?.username?.charAt(0) ||
-                                                                            post.author?.email?.charAt(0) ||
-                                                                            "U").toUpperCase()}
+                                        <div className="mb-3">
+                                            <label className="form-label">Image or video</label>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*,video/*"
+                                                ref={fileInputRef}
+                                                className="form-control"
+                                                onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
+                                            />
+                                            {renderNewFilesPreview(newFiles, setNewFiles)}
+                                        </div>
+                                        <div className="d-flex justify-content-end">
+                                            <button type="submit" className="btn btn-primary" disabled={creating}>
+                                                {creating ? "Posting..." : "Post"}
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    {loadingMyPosts ? (
+                                        <div className="d-flex justify-content-center py-4">
+                                            <div className="spinner-border" role="status">
+                                                <span className="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    ) : myPosts.length === 0 ? (
+                                        <p className="text-muted mb-0">You have no posts yet.</p>
+                                    ) : (
+                                        <div className="d-flex flex-column gap-4">
+                                            {myPosts.map((post) => {
+                                                const isEditingPost = editingPostId === post._id;
+                                                return (
+                                                    <div key={post._id} className="card shadow-sm">
+                                                        <div className="card-body">
+                                                            <div className="d-flex justify-content-between">
+                                                                <div className="d-flex align-items-center gap-2">
+                                                                    {post.author?.avatar ? (
+                                                                        <Image
+                                                                            src={post.author.avatar}
+                                                                            roundedCircle
+                                                                            width={40}
+                                                                            height={40}
+                                                                            style={{ objectFit: "cover" }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div
+                                                                            className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                                            style={{ width: 40, height: 40 }}
+                                                                        >
+                                                                            {(post.author?.username?.charAt(0) ||
+                                                                                post.author?.email?.charAt(0) ||
+                                                                                "U").toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                    <div>
+                                                                        <strong>{post.author?.username || post.author?.email}</strong>
+                                                                        <div className="text-muted" style={{ fontSize: "0.85rem" }}>
+                                                                            {new Date(post.createdAt).toLocaleString("vi-VN", {
+                                                                                hour12: false,
+                                                                                year: "numeric",
+                                                                                month: "2-digit",
+                                                                                day: "2-digit",
+                                                                                hour: "2-digit",
+                                                                                minute: "2-digit",
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                {!isEditingPost && (
+                                                                    <div className="d-flex gap-2">
+                                                                        <button
+                                                                            className="btn btn-sm btn-outline-secondary"
+                                                                            onClick={() => startEditing(post)}
+                                                                        >
+                                                                            Edit
+                                                                        </button>
+                                                                        <button
+                                                                            className="btn btn-sm btn-outline-danger"
+                                                                            onClick={() => handleDeletePost(post._id)}
+                                                                        >
+                                                                            Delete
+                                                                        </button>
                                                                     </div>
                                                                 )}
-                                                                <div>
-                                                                    <strong>{post.author?.username || post.author?.email}</strong>
-                                                                    <div className="text-muted" style={{ fontSize: "0.85rem" }}>
-                                                                        {new Date(post.createdAt).toLocaleString("vi-VN", {
-                                                                            hour12: false,
-                                                                            year: "numeric",
-                                                                            month: "2-digit",
-                                                                            day: "2-digit",
-                                                                            hour: "2-digit",
-                                                                            minute: "2-digit",
-                                                                        })}
-                                                                    </div>
-                                                                </div>
                                                             </div>
+
                                                             {!isEditingPost && (
-                                                                <div className="d-flex gap-2">
-                                                                    <button
-                                                                        className="btn btn-sm btn-outline-secondary"
-                                                                        onClick={() => startEditing(post)}
-                                                                    >
-                                                                        Sửa
-                                                                    </button>
-                                                                    <button
-                                                                        className="btn btn-sm btn-outline-danger"
-                                                                        onClick={() => handleDeletePost(post._id)}
-                                                                    >
-                                                                        Xóa
-                                                                    </button>
-                                                                </div>
+                                                                <>
+                                                                    <div className="mt-3">{post.content}</div>
+                                                                    {renderMedia(post.media)}
+                                                                    <div className="mt-2 text-muted" style={{ fontSize: "0.9rem" }}>
+                                                                        <span className="me-3">👍 {post.likes?.length || 0}</span>
+                                                                        <span>💬 {post.comments?.length || 0}</span>
+                                                                    </div>
+                                                                </>
+                                                            )}
+
+                                                            {isEditingPost && (
+                                                                <form onSubmit={handleUpdatePost} className="mt-3">
+                                                                    <div className="mb-3">
+                                                                        <label className="form-label">Content</label>
+                                                                        <textarea
+                                                                            className="form-control"
+                                                                            rows={3}
+                                                                            value={editContent}
+                                                                            onChange={(e) => setEditContent(e.target.value)}
+                                                                        />
+                                                                    </div>
+                                                                    {post.media?.length ? renderEditMedia(post) : null}
+                                                                    <div className="mb-3">
+                                                                        <label className="form-label">Add image/video</label>
+                                                                        <input
+                                                                            type="file"
+                                                                            multiple
+                                                                            accept="image/*,video/*"
+                                                                            ref={editFileInputRef}
+                                                                            className="form-control"
+                                                                            onChange={(e) =>
+                                                                                setEditFiles((prev) => [
+                                                                                    ...prev,
+                                                                                    ...Array.from(e.target.files || []),
+                                                                                ])
+                                                                            }
+                                                                        />
+                                                                        {renderNewFilesPreview(editFiles, setEditFiles)}
+                                                                    </div>
+                                                                    <div className="d-flex gap-2">
+                                                                        <button type="submit" className="btn btn-primary">
+                                                                            Save changes
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary"
+                                                                            onClick={resetEditForm}
+                                                                        >
+                                                                            Cancel
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
                                                             )}
                                                         </div>
-
-                                                        {!isEditingPost && (
-                                                            <>
-                                                                <div className="mt-3">{post.content}</div>
-                                                                {renderMedia(post.media)}
-                                                                <div className="mt-2 text-muted" style={{ fontSize: "0.9rem" }}>
-                                                                    <span className="me-3">👍 {post.likes?.length || 0}</span>
-                                                                    <span>💬 {post.comments?.length || 0}</span>
-                                                                </div>
-
-                                                                {post.comments?.length > 0 && (
-                                                                    <ul className="mt-3 list-unstyled">
-                                                                        {post.comments.map((comment) => (
-                                                                            <li
-                                                                                key={comment._id}
-                                                                                className="border rounded p-3 mb-2 bg-light"
-                                                                            >
-                                                                                <div className="d-flex gap-2">
-                                                                                    {comment.author?.avatar ? (
-                                                                                        <Image
-                                                                                            src={comment.author.avatar}
-                                                                                            roundedCircle
-                                                                                            width={32}
-                                                                                            height={32}
-                                                                                            style={{
-                                                                                                objectFit: "cover",
-                                                                                                flexShrink: 0,
-                                                                                            }}
-                                                                                        />
-                                                                                    ) : (
-                                                                                        <div
-                                                                                            className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                                                                                            style={{
-                                                                                                width: 32,
-                                                                                                height: 32,
-                                                                                                fontSize: "0.9rem",
-                                                                                                flexShrink: 0,
-                                                                                            }}
-                                                                                        >
-                                                                                            {(comment.author?.username?.charAt(0) ||
-                                                                                                comment.author?.email?.charAt(0) ||
-                                                                                                "U").toUpperCase()}
-                                                                                        </div>
-                                                                                    )}
-                                                                                    <div className="flex-grow-1">
-                                                                                        <div className="d-flex justify-content-between align-items-start mb-1">
-                                                                                            <div>
-                                                                                                <strong className="d-block">
-                                                                                                    {comment.author?.username ||
-                                                                                                        comment.author?.email ||
-                                                                                                        "Ẩn danh"}
-                                                                                                </strong>
-                                                                                                <span
-                                                                                                    className="text-muted"
-                                                                                                    style={{ fontSize: "0.75rem" }}
-                                                                                                >
-                                                                                                    {new Date(comment.createdAt).toLocaleString("vi-VN", {
-                                                                                                        hour12: false,
-                                                                                                        year: "numeric",
-                                                                                                        month: "2-digit",
-                                                                                                        day: "2-digit",
-                                                                                                        hour: "2-digit",
-                                                                                                        minute: "2-digit",
-                                                                                                    })}
-                                                                                                </span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div style={{ fontSize: "0.9rem" }}>
-                                                                                            {comment.content}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                )}
-
-                                                                <div className="mt-3 d-flex gap-2">
-                                                                    <input
-                                                                        type="text"
-                                                                        className="form-control form-control-sm"
-                                                                        placeholder="Viết bình luận..."
-                                                                        value={commentDrafts[post._id] || ""}
-                                                                        onChange={(e) =>
-                                                                            setCommentDrafts((prev) => ({
-                                                                                ...prev,
-                                                                                [post._id]: e.target.value,
-                                                                            }))
-                                                                        }
-                                                                        onKeyDown={(e) => {
-                                                                            if (e.key === "Enter") {
-                                                                                e.preventDefault();
-                                                                                (async () => {
-                                                                                    const content = (commentDrafts[post._id] || "").trim();
-                                                                                    if (!content) return;
-                                                                                    try {
-                                                                                        const { data } = await createComment(post._id, { content });
-                                                                                        setMyPosts((prev) =>
-                                                                                            prev.map((p) =>
-                                                                                                p._id === post._id
-                                                                                                    ? { ...p, comments: [...(p.comments || []), data] }
-                                                                                                    : p
-                                                                                            )
-                                                                                        );
-                                                                                        setCommentDrafts((prev) => ({ ...prev, [post._id]: "" }));
-                                                                                    } catch (error) {
-                                                                                        const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
-                                                                                        alert(errorMessage);
-                                                                                    }
-                                                                                })();
-                                                                            }
-                                                                        }}
-                                                                    />
-                                                                    <button
-                                                                        className="btn btn-sm btn-primary"
-                                                                        onClick={async () => {
-                                                                            const content = (commentDrafts[post._id] || "").trim();
-                                                                            if (!content) return;
-                                                                            try {
-                                                                                const { data } = await createComment(post._id, { content });
-                                                                                setMyPosts((prev) =>
-                                                                                    prev.map((p) =>
-                                                                                        p._id === post._id
-                                                                                            ? { ...p, comments: [...(p.comments || []), data] }
-                                                                                            : p
-                                                                                    )
-                                                                                );
-                                                                                setCommentDrafts((prev) => ({ ...prev, [post._id]: "" }));
-                                                                            } catch (error) {
-                                                                                const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
-                                                                                alert(errorMessage);
-                                                                            }
-                                                                        }}
-                                                                    >
-                                                                        Gửi
-                                                                    </button>
-                                                                </div>
-                                                            </>
-                                                        )}
-
-                                                        {isEditingPost && (
-                                                            <form onSubmit={handleUpdatePost} className="mt-3">
-                                                                <div className="mb-3">
-                                                                    <label className="form-label">Nội dung</label>
-                                                                    <textarea
-                                                                        className="form-control"
-                                                                        rows={3}
-                                                                        value={editContent}
-                                                                        onChange={(e) => setEditContent(e.target.value)}
-                                                                    />
-                                                                </div>
-                                                                {post.media?.length ? renderEditMedia(post) : null}
-                                                                <div className="mb-3">
-                                                                    <label className="form-label">Thêm ảnh/video</label>
-                                                                    <input
-                                                                        type="file"
-                                                                        multiple
-                                                                        accept="image/*,video/*"
-                                                                        ref={editFileInputRef}
-                                                                        className="form-control"
-                                                                        onChange={(e) =>
-                                                                            setEditFiles((prev) => [
-                                                                                ...prev,
-                                                                                ...Array.from(e.target.files || []),
-                                                                            ])
-                                                                        }
-                                                                    />
-                                                                    {renderNewFilesPreview(editFiles, setEditFiles)}
-                                                                </div>
-                                                                <div className="d-flex gap-2">
-                                                                    <button type="submit" className="btn btn-primary">
-                                                                        Lưu thay đổi
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-outline-secondary"
-                                                                        onClick={resetEditForm}
-                                                                    >
-                                                                        Hủy
-                                                                    </button>
-                                                                </div>
-                                                            </form>
-                                                        )}
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
             </main>
 
@@ -1381,7 +1252,7 @@ function UserProfile() {
                                         }}
                                     >
                                         <i className="bi bi-folder2-open me-2"></i>
-                                        {selectedFile ? "Chọn ảnh khác" : "Chọn ảnh từ máy tính"}
+                                        {selectedFile ? "Choose another image" : "Choose image from computer"}
                                     </label>
                                     <input
                                         type="file"
@@ -1420,12 +1291,12 @@ function UserProfile() {
                                                     className="spinner-border spinner-border-sm me-2"
                                                     role="status"
                                                 ></span>
-                                                Đang upload...
+                                                Uploading...
                                             </>
                                         ) : (
                                             <>
                                                 <i className="bi bi-check-circle me-2"></i>
-                                                Lưu ảnh
+                                                Save image
                                             </>
                                         )}
                                     </button>
@@ -1472,7 +1343,7 @@ function UserProfile() {
                                 <div className="mb-3">
                                     <label className="form-label fw-semibold mb-2">
                                         <i className="bi bi-lock me-2 text-primary"></i>
-                                        Mật khẩu hiện tại
+                                        Current Password
                                     </label>
                                     <input
                                         type="password"
@@ -1482,7 +1353,7 @@ function UserProfile() {
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.currentPassword}
                                         onChange={handlePasswordChange}
-                                        placeholder="Nhập mật khẩu hiện tại"
+                                        placeholder="Enter current password"
                                         disabled={changingPassword}
                                     />
                                     {passwordErrors.currentPassword && (
@@ -1496,7 +1367,7 @@ function UserProfile() {
                                 <div className="mb-3">
                                     <label className="form-label fw-semibold mb-2">
                                         <i className="bi bi-key-fill me-2 text-primary"></i>
-                                        Mật khẩu mới
+                                        New Password
                                     </label>
                                     <input
                                         type="password"
@@ -1506,7 +1377,7 @@ function UserProfile() {
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.newPassword}
                                         onChange={handlePasswordChange}
-                                        placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự, 1 chữ hoa, 1 ký tự đặc biệt)"
+                                        placeholder="Enter new password (minimum 6 characters, 1 uppercase, 1 special character)"
                                         disabled={changingPassword}
                                     />
                                     {passwordErrors.newPassword && (
@@ -1520,7 +1391,7 @@ function UserProfile() {
                                 <div className="mb-4">
                                     <label className="form-label fw-semibold mb-2">
                                         <i className="bi bi-key-fill me-2 text-primary"></i>
-                                        Xác nhận mật khẩu mới
+                                        Confirm New Password
                                     </label>
                                     <input
                                         type="password"
@@ -1530,7 +1401,7 @@ function UserProfile() {
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.confirmPassword}
                                         onChange={handlePasswordChange}
-                                        placeholder="Nhập lại mật khẩu mới"
+                                        placeholder="Confirm new password"
                                         disabled={changingPassword}
                                     />
                                     {passwordErrors.confirmPassword && (
@@ -1562,12 +1433,12 @@ function UserProfile() {
                                                     className="spinner-border spinner-border-sm me-2"
                                                     role="status"
                                                 ></span>
-                                                Đang xử lý...
+                                                Processing...
                                             </>
                                         ) : (
                                             <>
                                                 <i className="bi bi-check-circle me-2"></i>
-                                                Đổi mật khẩu
+                                                Change Password
                                             </>
                                         )}
                                     </button>

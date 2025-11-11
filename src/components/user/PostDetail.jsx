@@ -54,7 +54,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 			setPost((prev) => prev ? { ...prev, comments: [...(prev.comments || []), data] } : prev);
 			setCommentText("");
 		} catch (error) {
-			const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
+			const errorMessage = error.response?.data?.message || error.message || "Cannot add comment";
 			alert(errorMessage);
 		} finally {
 			setSubmitting(false);
@@ -62,13 +62,13 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 	};
 
 	const handleDeleteComment = async (commentId) => {
-		const ok = window.confirm("Bạn có chắc chắn muốn xóa bình luận này?");
+		const ok = window.confirm("Are you sure you want to delete this comment?");
 		if (!ok) return;
 		try {
 			await deleteComment(postId, commentId);
 			setPost((prev) => prev ? { ...prev, comments: (prev.comments || []).filter(c => c._id !== commentId) } : prev);
 		} catch (error) {
-			const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bình luận";
+			const errorMessage = error.response?.data?.message || error.message || "Cannot delete comment";
 			alert(errorMessage);
 		}
 	};
@@ -99,7 +99,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 			setEditingCommentId(null);
 			setEditingCommentText("");
 		} catch (error) {
-			const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bình luận";
+			const errorMessage = error.response?.data?.message || error.message || "Cannot update comment";
 			alert(errorMessage);
 		}
 	};
@@ -109,7 +109,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 			const { data } = await toggleLike(postId);
 			setPost(data);
 		} catch (error) {
-			const errorMessage = error.response?.data?.message || error.message || "Không thể thích bài viết";
+			const errorMessage = error.response?.data?.message || error.message || "Cannot like post";
 			alert(errorMessage);
 		}
 	};
@@ -167,11 +167,11 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 							style={{ borderRadius: "20px" }}
 						>
 							<span className="me-1">👍</span>
-							Thích
+							Like
 						</Button>
 						{post.likes?.length > 0 && (
 							<span className="text-primary" style={{ fontSize: "0.9rem" }}>
-								{post.likes.length} lượt thích
+								{post.likes.length} likes
 							</span>
 						)}
 					</div>
@@ -180,7 +180,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 						<Form.Control
 							size="sm"
 							type="text"
-							placeholder="Viết bình luận..."
+							placeholder="Write a comment..."
 							value={commentText}
 							onChange={(e) => setCommentText(e.target.value)}
 							onKeyDown={(e) => {
@@ -236,7 +236,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 																			style={{ fontSize: "0.85rem" }}
 																			onClick={() => saveEditComment(comment._id)}
 																		>
-																			Lưu
+																			Save
 																		</Button>
 																		<Button
 																			size="sm"
@@ -245,7 +245,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 																			style={{ fontSize: "0.85rem" }}
 																			onClick={cancelEditComment}
 																		>
-																			Hủy
+																			Cancel
 																		</Button>
 																	</>
 																) : (
@@ -256,7 +256,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 																		style={{ fontSize: "0.85rem" }}
 																		onClick={() => startEditComment(comment)}
 																	>
-																		Sửa
+																		Edit
 																	</Button>
 																)}
 															</>
@@ -269,7 +269,7 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 																style={{ fontSize: "0.85rem" }}
 																onClick={() => handleDeleteComment(comment._id)}
 															>
-																Xóa
+																Delete
 															</Button>
 														)}
 													</div>
@@ -320,12 +320,12 @@ function PostDetail({ postId, show = false, onHide = () => { }, asPage = false }
 	return (
 		<Modal show={show} onHide={onHide} centered size="lg">
 			<Modal.Header closeButton>
-				<Modal.Title>Chi tiết bài viết</Modal.Title>
+				<Modal.Title>Post Details</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>{Body}</Modal.Body>
 			<Modal.Footer>
 				<Button variant="secondary" onClick={onHide}>
-					Đóng
+					Close
 				</Button>
 			</Modal.Footer>
 		</Modal>
