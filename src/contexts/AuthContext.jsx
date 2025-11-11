@@ -114,6 +114,19 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateUser = (nextUser) => {
+        try {
+            setUser(nextUser);
+            if (nextUser) {
+                localStorage.setItem('user', JSON.stringify(nextUser));
+            } else {
+                localStorage.removeItem('user');
+            }
+        } catch (e) {
+            // noop
+        }
+    };
+
     const value = {
         user,
         loading,
@@ -123,6 +136,7 @@ export const AuthProvider = ({ children }) => {
         register,
         sendOTPResetPassword,
         resetPassword,
+        updateUser,
         isAuthenticated: !!user,
     };
 
