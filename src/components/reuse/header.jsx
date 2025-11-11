@@ -164,25 +164,39 @@ function Header() {
         const diffInSeconds = Math.floor((now - then) / 1000);
 
         if (diffInSeconds < 60) return "Just now";
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hr ago`;
+        if (diffInSeconds < 3600)
+            return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+        if (diffInSeconds < 86400)
+            return `${Math.floor(diffInSeconds / 3600)} hours ago`;
         return `${Math.floor(diffInSeconds / 86400)} days ago`;
     };
 
     const getNotificationText = (notification) => {
-        const senderName = notification.sender?.username || notification.sender?.email || "Someone";
+        const senderName =
+            notification.sender?.username ||
+            notification.sender?.email ||
+            "Someone";
         if (notification.type === "like") {
             return `${senderName} liked your post`;
         } else if (notification.type === "comment") {
             return `${senderName} commented on your post`;
+        } else if (notification.type === "reply") {
+            return `${senderName} replied to your comment`;
         } else if (notification.type === "follow_request") {
             return `${senderName} sent you a follow request`;
         } else if (notification.type === "follow_accept") {
             return `${senderName} accepted your follow request`;
         } else if (notification.type === "follow_reject") {
             return `${senderName} rejected your follow request`;
-        } else if (notification.type === "message") {
-            return `${senderName} sent you a message`;
+        } else if (notification.type === "banned") {
+            const reason = notification.metadata?.reason || "Violation of terms";
+            return `Your account has been restricted. Reason: ${reason}`;
+        } else if (notification.type === "unbanned") {
+            return `Your account has been restored with full access`;
+        } else if (notification.type === "role_updated") {
+            const oldRole = notification.metadata?.oldRole === "admin" ? "Administrator" : "Student";
+            const newRole = notification.metadata?.newRole === "admin" ? "Administrator" : "Student";
+            return `Your role has been changed from ${oldRole} to ${newRole}`;
         }
         return "You have a new notification";
     };
@@ -231,7 +245,8 @@ function Header() {
                 prev.map((u) => (u._id === targetId ? { ...u, __requested: true } : u))
             );
         } catch (e) {
-            // noop
+            const errorMessage = e.response?.data?.message || "Cannot send follow request";
+            alert(errorMessage);
         }
     };
 
@@ -353,7 +368,7 @@ function Header() {
                                                 disabled={u.__requested}
                                                 onClick={() => handleFollow(u._id)}
                                             >
-                                                {u.__requested ? "Requested" : "Follow"}
+                                                {u.__requested ? "Sent" : "Follow"}
                                             </button>
                                         </div>
                                     ))
@@ -467,7 +482,7 @@ function Header() {
                                         className="bi bi-bell-slash"
                                         style={{ fontSize: "2rem" }}
                                     ></i>
-                                    <p className="mt-2 mb-0">No notifications yet</p>
+                                    <p className="mt-2 mb-0">No notifications</p>
                                 </div>
                             ) : (
                                 <>
