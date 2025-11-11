@@ -87,7 +87,9 @@ function VerifyOtpResetScreen() {
                                     className="fas fa-shield-alt fa-3x me-3"
                                     style={{ color: "#2196F3" }}
                                 ></i>
-                                <span className="h1 fw-bold mb-0">Verify OTP</span>
+                                <span className="h1 fw-bold mb-0" style={{ color: "#2196F3" }}>
+                                    Verify OTP
+                                </span>
                             </div>
 
                             <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: "1px" }}>
@@ -125,7 +127,7 @@ function VerifyOtpResetScreen() {
                                 </div>
 
                                 <button
-                                    className="btn btn-dark btn-lg btn-block w-100 mb-4"
+                                    className="btn btn-primary btn-lg btn-block w-100 mb-4"
                                     type="submit"
                                     disabled={loading}
                                 >

@@ -56,7 +56,9 @@ function ForgotPasswordScreen() {
                                     className="fas fa-key fa-3x me-3"
                                     style={{ color: "#2196F3" }}
                                 ></i>
-                                <span className="h1 fw-bold mb-0">Forgot Password</span>
+                                <span className="h1 fw-bold mb-0" style={{ color: "#2196F3" }}>
+                                    Forgot Password
+                                </span>
                             </div>
 
                             <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: "1px" }}>

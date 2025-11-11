@@ -72,7 +72,9 @@ function RegisterScreen() {
                                     className="fas fa-user-plus fa-3x me-3"
                                     style={{ color: "#2196F3" }}
                                 ></i>
-                                <span className="h1 fw-bold mb-0">Register</span>
+                                <span className="h1 fw-bold mb-0" style={{ color: "#2196F3" }}>
+                                    Register
+                                </span>
                             </div>
 
                             <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: "1px" }}>
@@ -162,7 +164,7 @@ function RegisterScreen() {
                                 </div>
 
                                 <button
-                                    className="btn btn-dark btn-lg btn-block mb-4 px-5 w-100"
+                                    className="btn btn-primary btn-lg btn-block mb-4 px-5 w-100"
                                     type="submit"
                                     disabled={loading}
                                 >
