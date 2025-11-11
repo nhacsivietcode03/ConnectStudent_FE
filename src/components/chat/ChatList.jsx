@@ -129,10 +129,10 @@ const ChatList = ({ onSelectConversation, selectedConversationId }) => {
         const now = new Date();
         const diff = now - messageDate;
 
-        if (diff < 60000) return "Vừa xong";
-        if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
-        if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
-        if (diff < 604800000) return `${Math.floor(diff / 86400000)} ngày trước`;
+        if (diff < 60000) return "Just now";
+        if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)} hr ago`;
+        if (diff < 604800000) return `${Math.floor(diff / 86400000)} days ago`;
         return messageDate.toLocaleDateString("vi-VN");
     };
 
@@ -140,7 +140,7 @@ const ChatList = ({ onSelectConversation, selectedConversationId }) => {
         return (
             <div className="chat-list">
                 <div className="chat-list-header">
-                    <h5>Tin nhắn</h5>
+                    <h5>Messages</h5>
                 </div>
                 <div className="text-center p-3">
                     <div className="spinner-border" role="status">
@@ -161,7 +161,7 @@ const ChatList = ({ onSelectConversation, selectedConversationId }) => {
                 <input
                     type="text"
                     className="form-control"
-                    placeholder="Tìm kiếm người dùng..."
+                    placeholder="Search users..."
                     value={searchTerm}
                     onChange={handleSearch}
                     autoComplete="off"
@@ -192,9 +192,9 @@ const ChatList = ({ onSelectConversation, selectedConversationId }) => {
             <div className="conversations">
                 {conversations.length === 0 ? (
                     <div className="no-conversations">
-                        <p>Chưa có cuộc trò chuyện nào</p>
+                        <p>No conversations yet</p>
                         <p style={{ fontSize: "13px", marginTop: "8px", opacity: 0.7 }}>
-                            Tìm kiếm người dùng để bắt đầu trò chuyện
+                            Search for users to start a conversation
                         </p>
                     </div>
                 ) : (
@@ -227,7 +227,7 @@ const ChatList = ({ onSelectConversation, selectedConversationId }) => {
                                     </div>
                                     <div className="conversation-preview">
                                         <span className="last-message">
-                                            {conv.lastMessage?.content || "Chưa có tin nhắn"}
+                                            {conv.lastMessage?.content || "No messages yet"}
                                         </span>
                                     </div>
                                 </div>

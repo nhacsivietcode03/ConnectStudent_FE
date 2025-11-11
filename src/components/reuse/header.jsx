@@ -163,28 +163,28 @@ function Header() {
         const then = new Date(date);
         const diffInSeconds = Math.floor((now - then) / 1000);
 
-        if (diffInSeconds < 60) return "Vừa xong";
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
-        return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+        if (diffInSeconds < 60) return "Just now";
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hr ago`;
+        return `${Math.floor(diffInSeconds / 86400)} days ago`;
     };
 
     const getNotificationText = (notification) => {
-        const senderName = notification.sender?.username || notification.sender?.email || "Ai đó";
+        const senderName = notification.sender?.username || notification.sender?.email || "Someone";
         if (notification.type === "like") {
-            return `${senderName} đã thích bài viết của bạn`;
+            return `${senderName} liked your post`;
         } else if (notification.type === "comment") {
-            return `${senderName} đã bình luận bài viết của bạn`;
+            return `${senderName} commented on your post`;
         } else if (notification.type === "follow_request") {
-            return `${senderName} đã gửi lời mời theo dõi`;
+            return `${senderName} sent you a follow request`;
         } else if (notification.type === "follow_accept") {
-            return `${senderName} đã chấp nhận lời mời theo dõi của bạn`;
+            return `${senderName} accepted your follow request`;
         } else if (notification.type === "follow_reject") {
-            return `${senderName} đã từ chối lời mời theo dõi của bạn`;
+            return `${senderName} rejected your follow request`;
         } else if (notification.type === "message") {
-            return `${senderName} đã gửi tin nhắn cho bạn`;
+            return `${senderName} sent you a message`;
         }
-        return "Bạn có thông báo mới";
+        return "You have a new notification";
     };
 
     const handleLogout = async () => {
@@ -284,7 +284,7 @@ function Header() {
                         <input
                             type="text"
                             className="form-control form-control-sm"
-                            placeholder="Tìm kiếm người dùng..."
+                            placeholder="Search users..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onFocus={() => searchResults.length > 0 && setShowSearch(true)}
@@ -304,9 +304,9 @@ function Header() {
                                 }}
                             >
                                 {searching ? (
-                                    <div className="p-2 text-muted">Đang tìm...</div>
+                                    <div className="p-2 text-muted">Searching...</div>
                                 ) : searchResults.length === 0 ? (
-                                    <div className="p-2 text-muted">Không tìm thấy người dùng</div>
+                                    <div className="p-2 text-muted">No users found</div>
                                 ) : (
                                     searchResults.map((u) => (
                                         <div
@@ -353,7 +353,7 @@ function Header() {
                                                 disabled={u.__requested}
                                                 onClick={() => handleFollow(u._id)}
                                             >
-                                                {u.__requested ? "Đã gửi" : "Follow"}
+                                                {u.__requested ? "Requested" : "Follow"}
                                             </button>
                                         </div>
                                     ))
@@ -450,14 +450,14 @@ function Header() {
                             align="end"
                         >
                             <div className="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-                                <h6 className="mb-0 fw-bold">Thông báo</h6>
+                                <h6 className="mb-0 fw-bold">Notifications</h6>
                                 {unreadCount > 0 && (
                                     <button
                                         className="btn btn-link btn-sm p-0 text-primary"
                                         onClick={handleMarkAllAsRead}
                                         style={{ fontSize: "0.85rem" }}
                                     >
-                                        Đánh dấu tất cả đã đọc
+                                        Mark all as read
                                     </button>
                                 )}
                             </div>
@@ -467,7 +467,7 @@ function Header() {
                                         className="bi bi-bell-slash"
                                         style={{ fontSize: "2rem" }}
                                     ></i>
-                                    <p className="mt-2 mb-0">Chưa có thông báo</p>
+                                    <p className="mt-2 mb-0">No notifications yet</p>
                                 </div>
                             ) : (
                                 <>

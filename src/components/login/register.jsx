@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 function RegisterScreen() {
+    useEffect(() => {
+        document.title = "Register - ConnectStudent";
+    }, []);
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -67,7 +70,7 @@ function RegisterScreen() {
                             <div className="d-flex flex-row mt-2 align-items-center">
                                 <i
                                     className="fas fa-user-plus fa-3x me-3"
-                                    style={{ color: "#ff6219" }}
+                                    style={{ color: "#2196F3" }}
                                 ></i>
                                 <span className="h1 fw-bold mb-0">Register</span>
                             </div>
@@ -84,7 +87,9 @@ function RegisterScreen() {
 
                             <form onSubmit={handleSubmit}>
                                 <div className="form-outline mb-3">
-                                    <label className="form-label" htmlFor="username">Full Name</label>
+                                    <label className="form-label" htmlFor="username">
+                                        Full Name
+                                    </label>
                                     <input
                                         type="text"
                                         id="username"
@@ -96,7 +101,9 @@ function RegisterScreen() {
                                 </div>
 
                                 <div className="form-outline mb-3">
-                                    <label className="form-label" htmlFor="email">Email</label>
+                                    <label className="form-label" htmlFor="email">
+                                        Email
+                                    </label>
                                     <input
                                         type="email"
                                         id="email"
@@ -109,7 +116,9 @@ function RegisterScreen() {
                                 </div>
 
                                 <div className="form-outline mb-3">
-                                    <label className="form-label" htmlFor="password">Password</label>
+                                    <label className="form-label" htmlFor="password">
+                                        Password
+                                    </label>
                                     <input
                                         type="password"
                                         id="password"
@@ -123,7 +132,9 @@ function RegisterScreen() {
                                 </div>
 
                                 <div className="form-outline mb-3">
-                                    <label className="form-label" htmlFor="confirmPassword">Confirm Password</label>
+                                    <label className="form-label" htmlFor="confirmPassword">
+                                        Confirm Password
+                                    </label>
                                     <input
                                         type="password"
                                         id="confirmPassword"
@@ -137,7 +148,9 @@ function RegisterScreen() {
                                 </div>
 
                                 <div className="form-outline mb-4">
-                                    <label className="form-label" htmlFor="major">Major</label>
+                                    <label className="form-label" htmlFor="major">
+                                        Major
+                                    </label>
                                     <input
                                         type="text"
                                         id="major"

@@ -11,6 +11,10 @@ import { useAuth } from "../../contexts/AuthContext";
 function UserProfile() {
     const navigate = useNavigate();
     const { user, updateUser } = useAuth();
+
+    useEffect(() => {
+        document.title = "Profile - ConnectStudent";
+    }, []);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -159,16 +163,25 @@ function UserProfile() {
                                         onChange={(e) => {
                                             const next = e.target.checked
                                                 ? [...editKeepMedia, item.publicId]
-                                                : editKeepMedia.filter((id) => id !== item.publicId);
+                                                : editKeepMedia.filter(
+                                                      (id) => id !== item.publicId
+                                                  );
                                             setEditKeepMedia(next);
                                         }}
                                     />
-                                    <label className="form-check-label" htmlFor={`${post._id}-${item.publicId}`}>
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor={`${post._id}-${item.publicId}`}
+                                    >
                                         Giữ lại
                                     </label>
                                 </div>
                                 {item.resourceType === "video" ? (
-                                    <video src={item.url} style={{ width: "100%", borderRadius: "6px" }} controls />
+                                    <video
+                                        src={item.url}
+                                        style={{ width: "100%", borderRadius: "6px" }}
+                                        controls
+                                    />
                                 ) : (
                                     <img
                                         src={item.url}
@@ -206,9 +219,11 @@ function UserProfile() {
                             <button
                                 type="button"
                                 className="btn btn-sm btn-outline-danger"
-                                onClick={() => setFiles((prev) => prev.filter((_, index) => index !== idx))}
+                                onClick={() =>
+                                    setFiles((prev) => prev.filter((_, index) => index !== idx))
+                                }
                             >
-                                Xóa
+                                Delete
                             </button>
                         </li>
                     ))}
@@ -247,7 +262,8 @@ function UserProfile() {
             setMyPosts((prev) => [data, ...prev]);
             resetCreateForm();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể đăng bài";
+            const errorMessage =
+                error.response?.data?.message || error.message || "Không thể đăng bài";
             alert(errorMessage);
         } finally {
             setCreating(false);
@@ -275,7 +291,8 @@ function UserProfile() {
             setMyPosts((prev) => prev.map((p) => (p._id === data._id ? data : p)));
             resetEditForm();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật bài viết";
+            const errorMessage =
+                error.response?.data?.message || error.message || "Không thể cập nhật bài viết";
             alert(errorMessage);
         }
     };
@@ -286,7 +303,8 @@ function UserProfile() {
             await deletePost(postId);
             setMyPosts((prev) => prev.filter((p) => p._id !== postId));
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Không thể xóa bài viết";
+            const errorMessage =
+                error.response?.data?.message || error.message || "Không thể xóa bài viết";
             alert(errorMessage);
         }
     };
@@ -338,12 +356,14 @@ function UserProfile() {
                     email: editData.email,
                     major: editData.major || "",
                     avatar: editData.avatar || "",
-                    bio: editData.bio || ""
+                    bio: editData.bio || "",
                 };
                 updateUser(nextUser);
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "Không thể cập nhật thông tin. Vui lòng thử lại sau.";
+            const errorMessage =
+                err.response?.data?.message ||
+                "Không thể cập nhật thông tin. Vui lòng thử lại sau.";
             setError(errorMessage);
             alert(errorMessage);
         } finally {
@@ -457,7 +477,8 @@ function UserProfile() {
                 setPasswordErrors({});
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng thử lại sau.";
+            const errorMessage =
+                err.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng thử lại sau.";
             setError(errorMessage);
             alert(errorMessage);
         } finally {
@@ -535,7 +556,8 @@ function UserProfile() {
                 setSelectedFile(null);
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "Không thể upload avatar. Vui lòng thử lại sau.";
+            const errorMessage =
+                err.response?.data?.message || "Không thể upload avatar. Vui lòng thử lại sau.";
             setError(errorMessage);
             alert(errorMessage);
         } finally {
@@ -561,7 +583,7 @@ function UserProfile() {
         return (
             <div
                 className="min-vh-100 d-flex align-items-center justify-content-center"
-                style={{ background: "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)" }}
+                style={{ background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)" }}
             >
                 <div className="text-center">
                     <div
@@ -633,7 +655,7 @@ function UserProfile() {
                         >
                             <div
                                 style={{
-                                    background: "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)",
+                                    background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
                                     padding: "3rem 2rem 2rem",
                                     position: "relative",
                                 }}
@@ -720,11 +742,11 @@ function UserProfile() {
                                                 Thành viên từ{" "}
                                                 {userData.createdAt
                                                     ? new Date(
-                                                        userData.createdAt
-                                                    ).toLocaleDateString("vi-VN", {
-                                                        month: "long",
-                                                        year: "numeric",
-                                                    })
+                                                          userData.createdAt
+                                                      ).toLocaleDateString("vi-VN", {
+                                                          month: "long",
+                                                          year: "numeric",
+                                                      })
                                                     : "N/A"}
                                             </p>
                                         </div>
@@ -743,15 +765,17 @@ function UserProfile() {
                                         </button>
                                         <button
                                             onClick={handleEdit}
-                                            className={`btn fw-semibold ${isEditing ? "btn-secondary" : "btn-warning"
-                                                }`}
+                                            className={`btn fw-semibold ${
+                                                isEditing ? "btn-secondary" : "btn-warning"
+                                            }`}
                                             style={{ borderRadius: "10px", border: "none" }}
                                         >
                                             <i
-                                                className={`bi ${isEditing ? "bi-x-circle" : "bi-pencil"
-                                                    } me-2`}
+                                                className={`bi ${
+                                                    isEditing ? "bi-x-circle" : "bi-pencil"
+                                                } me-2`}
                                             ></i>
-                                            {isEditing ? "Hủy" : "Chỉnh sửa"}
+                                            {isEditing ? "Cancel" : "Edit"}
                                         </button>
                                     </div>
                                 </div>
@@ -782,17 +806,18 @@ function UserProfile() {
                                         <>
                                             <input
                                                 type="text"
-                                                className={`form-control form-control-lg ${fieldErrors.username ? "is-invalid" : ""
-                                                    }`}
+                                                className={`form-control form-control-lg ${
+                                                    fieldErrors.username ? "is-invalid" : ""
+                                                }`}
                                                 style={{ borderRadius: "10px", borderWidth: "2px" }}
                                                 value={editData?.username || ""}
                                                 onChange={(e) => {
                                                     setEditData((editData) =>
                                                         editData
                                                             ? {
-                                                                ...editData,
-                                                                username: e.target.value,
-                                                            }
+                                                                  ...editData,
+                                                                  username: e.target.value,
+                                                              }
                                                             : null
                                                     );
                                                     setFieldErrors((errors) => ({
@@ -935,12 +960,12 @@ function UserProfile() {
                                                         className="spinner-border spinner-border-sm me-2"
                                                         role="status"
                                                     ></span>
-                                                    Đang lưu...
+                                                    Saving...
                                                 </>
                                             ) : (
                                                 <>
                                                     <i className="bi bi-check-circle me-2"></i>
-                                                    Lưu thay đổi
+                                                    Save changes
                                                 </>
                                             )}
                                         </button>
@@ -950,7 +975,7 @@ function UserProfile() {
                                             style={{ borderRadius: "12px", fontSize: "1rem" }}
                                         >
                                             <i className="bi bi-x-circle me-2"></i>
-                                            Hủy
+                                            Cancel
                                         </button>
                                     </div>
                                 )}
@@ -959,311 +984,528 @@ function UserProfile() {
                     </div>
                 </div>
 
-            {/* My Posts */}
-            <div className="container pb-4">
-                <div className="row justify-content-center">
-                    <div className="col-lg-10 col-xl-8">
-                        <div
-                            className="card shadow-lg mt-2"
-                            style={{ borderRadius: "20px", border: "none" }}
-                        >
-                            <div className="card-body p-4 p-md-5">
-                                <h4 className="mb-4 fw-bold text-primary d-flex align-items-center">
-                                    <i className="bi bi-chat-left-text me-2"></i>
-                                    Bài viết của tôi
-                                </h4>
-                                {/* Create post */}
-                                <form onSubmit={handleCreatePost} className="mb-4">
-                                    <div className="mb-3">
-                                        <label className="form-label fw-semibold">Đăng bài viết</label>
-                                        <textarea
-                                            className="form-control"
-                                            rows={3}
-                                            placeholder="Bạn đang nghĩ gì?"
-                                            value={newContent}
-                                            onChange={(e) => setNewContent(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="form-label">Ảnh hoặc video</label>
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*,video/*"
-                                            ref={fileInputRef}
-                                            className="form-control"
-                                            onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
-                                        />
-                                        {renderNewFilesPreview(newFiles, setNewFiles)}
-                                    </div>
-                                    <div className="d-flex justify-content-end">
-                                        <button type="submit" className="btn btn-primary" disabled={creating}>
-                                            {creating ? "Đang đăng..." : "Đăng bài"}
-                                        </button>
-                                    </div>
-                                </form>
-
-                                {loadingMyPosts ? (
-                                    <div className="d-flex justify-content-center py-4">
-                                        <div className="spinner-border" role="status">
-                                            <span className="visually-hidden">Loading...</span>
+                {/* My Posts */}
+                <div className="container pb-4">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-10 col-xl-8">
+                            <div
+                                className="card shadow-lg mt-2"
+                                style={{ borderRadius: "20px", border: "none" }}
+                            >
+                                <div className="card-body p-4 p-md-5">
+                                    <h4 className="mb-4 fw-bold text-primary d-flex align-items-center">
+                                        <i className="bi bi-chat-left-text me-2"></i>
+                                        Bài viết của tôi
+                                    </h4>
+                                    {/* Create post */}
+                                    <form onSubmit={handleCreatePost} className="mb-4">
+                                        <div className="mb-3">
+                                            <label className="form-label fw-semibold">
+                                                Create Post
+                                            </label>
+                                            <textarea
+                                                className="form-control"
+                                                rows={3}
+                                                placeholder="What's on your mind?"
+                                                value={newContent}
+                                                onChange={(e) => setNewContent(e.target.value)}
+                                            />
                                         </div>
-                                    </div>
-                                ) : myPosts.length === 0 ? (
-                                    <p className="text-muted mb-0">Bạn chưa có bài viết nào.</p>
-                                ) : (
-                                    <div className="d-flex flex-column gap-4">
-                                        {myPosts.map((post) => {
-                                            const isEditingPost = editingPostId === post._id;
-                                            return (
-                                                <div key={post._id} className="card shadow-sm">
-                                                    <div className="card-body">
-                                                        <div className="d-flex justify-content-between">
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                {post.author?.avatar ? (
-                                                                    <Image
-                                                                        src={post.author.avatar}
-                                                                        roundedCircle
-                                                                        width={40}
-                                                                        height={40}
-                                                                        style={{ objectFit: "cover" }}
-                                                                    />
-                                                                ) : (
-                                                                    <div
-                                                                        className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                                                                        style={{ width: 40, height: 40 }}
-                                                                    >
-                                                                        {(post.author?.username?.charAt(0) ||
-                                                                            post.author?.email?.charAt(0) ||
-                                                                            "U").toUpperCase()}
+                                        <div className="mb-3">
+                                            <label className="form-label">Image or Video</label>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*,video/*"
+                                                ref={fileInputRef}
+                                                className="form-control"
+                                                onChange={(e) =>
+                                                    setNewFiles(Array.from(e.target.files || []))
+                                                }
+                                            />
+                                            {renderNewFilesPreview(newFiles, setNewFiles)}
+                                        </div>
+                                        <div className="d-flex justify-content-end">
+                                            <button
+                                                type="submit"
+                                                className="btn btn-primary"
+                                                disabled={creating}
+                                            >
+                                                {creating ? "Posting..." : "Post"}
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    {loadingMyPosts ? (
+                                        <div className="d-flex justify-content-center py-4">
+                                            <div className="spinner-border" role="status">
+                                                <span className="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    ) : myPosts.length === 0 ? (
+                                        <p className="text-muted mb-0">Bạn chưa có bài viết nào.</p>
+                                    ) : (
+                                        <div className="d-flex flex-column gap-4">
+                                            {myPosts.map((post) => {
+                                                const isEditingPost = editingPostId === post._id;
+                                                return (
+                                                    <div key={post._id} className="card shadow-sm">
+                                                        <div className="card-body">
+                                                            <div className="d-flex justify-content-between">
+                                                                <div className="d-flex align-items-center gap-2">
+                                                                    {post.author?.avatar ? (
+                                                                        <Image
+                                                                            src={post.author.avatar}
+                                                                            roundedCircle
+                                                                            width={40}
+                                                                            height={40}
+                                                                            style={{
+                                                                                objectFit: "cover",
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div
+                                                                            className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                                            style={{
+                                                                                width: 40,
+                                                                                height: 40,
+                                                                            }}
+                                                                        >
+                                                                            {(
+                                                                                post.author?.username?.charAt(
+                                                                                    0
+                                                                                ) ||
+                                                                                post.author?.email?.charAt(
+                                                                                    0
+                                                                                ) ||
+                                                                                "U"
+                                                                            ).toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                    <div>
+                                                                        <strong>
+                                                                            {post.author
+                                                                                ?.username ||
+                                                                                post.author?.email}
+                                                                        </strong>
+                                                                        <div
+                                                                            className="text-muted"
+                                                                            style={{
+                                                                                fontSize: "0.85rem",
+                                                                            }}
+                                                                        >
+                                                                            {new Date(
+                                                                                post.createdAt
+                                                                            ).toLocaleString(
+                                                                                "vi-VN",
+                                                                                {
+                                                                                    hour12: false,
+                                                                                    year: "numeric",
+                                                                                    month: "2-digit",
+                                                                                    day: "2-digit",
+                                                                                    hour: "2-digit",
+                                                                                    minute: "2-digit",
+                                                                                }
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                {!isEditingPost && (
+                                                                    <div className="d-flex gap-2">
+                                                                        <button
+                                                                            className="btn btn-sm btn-outline-secondary"
+                                                                            onClick={() =>
+                                                                                startEditing(post)
+                                                                            }
+                                                                        >
+                                                                            Edit
+                                                                        </button>
+                                                                        <button
+                                                                            className="btn btn-sm btn-outline-danger"
+                                                                            onClick={() =>
+                                                                                handleDeletePost(
+                                                                                    post._id
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Delete
+                                                                        </button>
                                                                     </div>
                                                                 )}
-                                                                <div>
-                                                                    <strong>{post.author?.username || post.author?.email}</strong>
-                                                                    <div className="text-muted" style={{ fontSize: "0.85rem" }}>
-                                                                        {new Date(post.createdAt).toLocaleString("vi-VN", {
-                                                                            hour12: false,
-                                                                            year: "numeric",
-                                                                            month: "2-digit",
-                                                                            day: "2-digit",
-                                                                            hour: "2-digit",
-                                                                            minute: "2-digit",
-                                                                        })}
-                                                                    </div>
-                                                                </div>
                                                             </div>
+
                                                             {!isEditingPost && (
-                                                                <div className="d-flex gap-2">
-                                                                    <button
-                                                                        className="btn btn-sm btn-outline-secondary"
-                                                                        onClick={() => startEditing(post)}
+                                                                <>
+                                                                    <div className="mt-3">
+                                                                        {post.content}
+                                                                    </div>
+                                                                    {renderMedia(post.media)}
+                                                                    <div
+                                                                        className="mt-2 text-muted"
+                                                                        style={{
+                                                                            fontSize: "0.9rem",
+                                                                        }}
                                                                     >
-                                                                        Sửa
-                                                                    </button>
-                                                                    <button
-                                                                        className="btn btn-sm btn-outline-danger"
-                                                                        onClick={() => handleDeletePost(post._id)}
-                                                                    >
-                                                                        Xóa
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </div>
+                                                                        <span className="me-3">
+                                                                            👍{" "}
+                                                                            {post.likes?.length ||
+                                                                                0}
+                                                                        </span>
+                                                                        <span>
+                                                                            💬{" "}
+                                                                            {post.comments
+                                                                                ?.length || 0}
+                                                                        </span>
+                                                                    </div>
 
-                                                        {!isEditingPost && (
-                                                            <>
-                                                                <div className="mt-3">{post.content}</div>
-                                                                {renderMedia(post.media)}
-                                                                <div className="mt-2 text-muted" style={{ fontSize: "0.9rem" }}>
-                                                                    <span className="me-3">👍 {post.likes?.length || 0}</span>
-                                                                    <span>💬 {post.comments?.length || 0}</span>
-                                                                </div>
-
-                                                                {post.comments?.length > 0 && (
-                                                                    <ul className="mt-3 list-unstyled">
-                                                                        {post.comments.map((comment) => (
-                                                                            <li
-                                                                                key={comment._id}
-                                                                                className="border rounded p-3 mb-2 bg-light"
-                                                                            >
-                                                                                <div className="d-flex gap-2">
-                                                                                    {comment.author?.avatar ? (
-                                                                                        <Image
-                                                                                            src={comment.author.avatar}
-                                                                                            roundedCircle
-                                                                                            width={32}
-                                                                                            height={32}
-                                                                                            style={{
-                                                                                                objectFit: "cover",
-                                                                                                flexShrink: 0,
-                                                                                            }}
-                                                                                        />
-                                                                                    ) : (
-                                                                                        <div
-                                                                                            className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                                                                                            style={{
-                                                                                                width: 32,
-                                                                                                height: 32,
-                                                                                                fontSize: "0.9rem",
-                                                                                                flexShrink: 0,
-                                                                                            }}
-                                                                                        >
-                                                                                            {(comment.author?.username?.charAt(0) ||
-                                                                                                comment.author?.email?.charAt(0) ||
-                                                                                                "U").toUpperCase()}
-                                                                                        </div>
-                                                                                    )}
-                                                                                    <div className="flex-grow-1">
-                                                                                        <div className="d-flex justify-content-between align-items-start mb-1">
-                                                                                            <div>
-                                                                                                <strong className="d-block">
-                                                                                                    {comment.author?.username ||
-                                                                                                        comment.author?.email ||
-                                                                                                        "Ẩn danh"}
-                                                                                                </strong>
-                                                                                                <span
-                                                                                                    className="text-muted"
-                                                                                                    style={{ fontSize: "0.75rem" }}
+                                                                    {post.comments?.length > 0 && (
+                                                                        <ul className="mt-3 list-unstyled">
+                                                                            {post.comments.map(
+                                                                                (comment) => (
+                                                                                    <li
+                                                                                        key={
+                                                                                            comment._id
+                                                                                        }
+                                                                                        className="border rounded p-3 mb-2 bg-light"
+                                                                                    >
+                                                                                        <div className="d-flex gap-2">
+                                                                                            {comment
+                                                                                                .author
+                                                                                                ?.avatar ? (
+                                                                                                <Image
+                                                                                                    src={
+                                                                                                        comment
+                                                                                                            .author
+                                                                                                            .avatar
+                                                                                                    }
+                                                                                                    roundedCircle
+                                                                                                    width={
+                                                                                                        32
+                                                                                                    }
+                                                                                                    height={
+                                                                                                        32
+                                                                                                    }
+                                                                                                    style={{
+                                                                                                        objectFit:
+                                                                                                            "cover",
+                                                                                                        flexShrink: 0,
+                                                                                                    }}
+                                                                                                />
+                                                                                            ) : (
+                                                                                                <div
+                                                                                                    className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                                                                    style={{
+                                                                                                        width: 32,
+                                                                                                        height: 32,
+                                                                                                        fontSize:
+                                                                                                            "0.9rem",
+                                                                                                        flexShrink: 0,
+                                                                                                    }}
                                                                                                 >
-                                                                                                    {new Date(comment.createdAt).toLocaleString("vi-VN", {
-                                                                                                        hour12: false,
-                                                                                                        year: "numeric",
-                                                                                                        month: "2-digit",
-                                                                                                        day: "2-digit",
-                                                                                                        hour: "2-digit",
-                                                                                                        minute: "2-digit",
-                                                                                                    })}
-                                                                                                </span>
+                                                                                                    {(
+                                                                                                        comment.author?.username?.charAt(
+                                                                                                            0
+                                                                                                        ) ||
+                                                                                                        comment.author?.email?.charAt(
+                                                                                                            0
+                                                                                                        ) ||
+                                                                                                        "U"
+                                                                                                    ).toUpperCase()}
+                                                                                                </div>
+                                                                                            )}
+                                                                                            <div className="flex-grow-1">
+                                                                                                <div className="d-flex justify-content-between align-items-start mb-1">
+                                                                                                    <div>
+                                                                                                        <strong className="d-block">
+                                                                                                            {comment
+                                                                                                                .author
+                                                                                                                ?.username ||
+                                                                                                                comment
+                                                                                                                    .author
+                                                                                                                    ?.email ||
+                                                                                                                "Ẩn danh"}
+                                                                                                        </strong>
+                                                                                                        <span
+                                                                                                            className="text-muted"
+                                                                                                            style={{
+                                                                                                                fontSize:
+                                                                                                                    "0.75rem",
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            {new Date(
+                                                                                                                comment.createdAt
+                                                                                                            ).toLocaleString(
+                                                                                                                "vi-VN",
+                                                                                                                {
+                                                                                                                    hour12: false,
+                                                                                                                    year: "numeric",
+                                                                                                                    month: "2-digit",
+                                                                                                                    day: "2-digit",
+                                                                                                                    hour: "2-digit",
+                                                                                                                    minute: "2-digit",
+                                                                                                                }
+                                                                                                            )}
+                                                                                                        </span>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div
+                                                                                                    style={{
+                                                                                                        fontSize:
+                                                                                                            "0.9rem",
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {
+                                                                                                        comment.content
+                                                                                                    }
+                                                                                                </div>
                                                                                             </div>
                                                                                         </div>
-                                                                                        <div style={{ fontSize: "0.9rem" }}>
-                                                                                            {comment.content}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                )}
+                                                                                    </li>
+                                                                                )
+                                                                            )}
+                                                                        </ul>
+                                                                    )}
 
-                                                                <div className="mt-3 d-flex gap-2">
-                                                                    <input
-                                                                        type="text"
-                                                                        className="form-control form-control-sm"
-                                                                        placeholder="Viết bình luận..."
-                                                                        value={commentDrafts[post._id] || ""}
-                                                                        onChange={(e) =>
-                                                                            setCommentDrafts((prev) => ({
-                                                                                ...prev,
-                                                                                [post._id]: e.target.value,
-                                                                            }))
-                                                                        }
-                                                                        onKeyDown={(e) => {
-                                                                            if (e.key === "Enter") {
-                                                                                e.preventDefault();
-                                                                                (async () => {
-                                                                                    const content = (commentDrafts[post._id] || "").trim();
-                                                                                    if (!content) return;
-                                                                                    try {
-                                                                                        const { data } = await createComment(post._id, { content });
-                                                                                        setMyPosts((prev) =>
-                                                                                            prev.map((p) =>
-                                                                                                p._id === post._id
-                                                                                                    ? { ...p, comments: [...(p.comments || []), data] }
-                                                                                                    : p
-                                                                                            )
+                                                                    <div className="mt-3 d-flex gap-2">
+                                                                        <input
+                                                                            type="text"
+                                                                            className="form-control form-control-sm"
+                                                                            placeholder="Viết bình luận..."
+                                                                            value={
+                                                                                commentDrafts[
+                                                                                    post._id
+                                                                                ] || ""
+                                                                            }
+                                                                            onChange={(e) =>
+                                                                                setCommentDrafts(
+                                                                                    (prev) => ({
+                                                                                        ...prev,
+                                                                                        [post._id]:
+                                                                                            e.target
+                                                                                                .value,
+                                                                                    })
+                                                                                )
+                                                                            }
+                                                                            onKeyDown={(e) => {
+                                                                                if (
+                                                                                    e.key ===
+                                                                                    "Enter"
+                                                                                ) {
+                                                                                    e.preventDefault();
+                                                                                    (async () => {
+                                                                                        const content =
+                                                                                            (
+                                                                                                commentDrafts[
+                                                                                                    post
+                                                                                                        ._id
+                                                                                                ] ||
+                                                                                                ""
+                                                                                            ).trim();
+                                                                                        if (
+                                                                                            !content
+                                                                                        )
+                                                                                            return;
+                                                                                        try {
+                                                                                            const {
+                                                                                                data,
+                                                                                            } =
+                                                                                                await createComment(
+                                                                                                    post._id,
+                                                                                                    {
+                                                                                                        content,
+                                                                                                    }
+                                                                                                );
+                                                                                            setMyPosts(
+                                                                                                (
+                                                                                                    prev
+                                                                                                ) =>
+                                                                                                    prev.map(
+                                                                                                        (
+                                                                                                            p
+                                                                                                        ) =>
+                                                                                                            p._id ===
+                                                                                                            post._id
+                                                                                                                ? {
+                                                                                                                      ...p,
+                                                                                                                      comments:
+                                                                                                                          [
+                                                                                                                              ...(p.comments ||
+                                                                                                                                  []),
+                                                                                                                              data,
+                                                                                                                          ],
+                                                                                                                  }
+                                                                                                                : p
+                                                                                                    )
+                                                                                            );
+                                                                                            setCommentDrafts(
+                                                                                                (
+                                                                                                    prev
+                                                                                                ) => ({
+                                                                                                    ...prev,
+                                                                                                    [post._id]:
+                                                                                                        "",
+                                                                                                })
+                                                                                            );
+                                                                                        } catch (error) {
+                                                                                            const errorMessage =
+                                                                                                error
+                                                                                                    .response
+                                                                                                    ?.data
+                                                                                                    ?.message ||
+                                                                                                error.message ||
+                                                                                                "Không thể thêm bình luận";
+                                                                                            alert(
+                                                                                                errorMessage
+                                                                                            );
+                                                                                        }
+                                                                                    })();
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                        <button
+                                                                            className="btn btn-sm btn-primary"
+                                                                            onClick={async () => {
+                                                                                const content = (
+                                                                                    commentDrafts[
+                                                                                        post._id
+                                                                                    ] || ""
+                                                                                ).trim();
+                                                                                if (!content)
+                                                                                    return;
+                                                                                try {
+                                                                                    const { data } =
+                                                                                        await createComment(
+                                                                                            post._id,
+                                                                                            {
+                                                                                                content,
+                                                                                            }
                                                                                         );
-                                                                                        setCommentDrafts((prev) => ({ ...prev, [post._id]: "" }));
-                                                                                    } catch (error) {
-                                                                                        const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
-                                                                                        alert(errorMessage);
-                                                                                    }
-                                                                                })();
-                                                                            }
-                                                                        }}
-                                                                    />
-                                                                    <button
-                                                                        className="btn btn-sm btn-primary"
-                                                                        onClick={async () => {
-                                                                            const content = (commentDrafts[post._id] || "").trim();
-                                                                            if (!content) return;
-                                                                            try {
-                                                                                const { data } = await createComment(post._id, { content });
-                                                                                setMyPosts((prev) =>
-                                                                                    prev.map((p) =>
-                                                                                        p._id === post._id
-                                                                                            ? { ...p, comments: [...(p.comments || []), data] }
-                                                                                            : p
-                                                                                    )
-                                                                                );
-                                                                                setCommentDrafts((prev) => ({ ...prev, [post._id]: "" }));
-                                                                            } catch (error) {
-                                                                                const errorMessage = error.response?.data?.message || error.message || "Không thể thêm bình luận";
-                                                                                alert(errorMessage);
-                                                                            }
-                                                                        }}
-                                                                    >
-                                                                        Gửi
-                                                                    </button>
-                                                                </div>
-                                                            </>
-                                                        )}
+                                                                                    setMyPosts(
+                                                                                        (prev) =>
+                                                                                            prev.map(
+                                                                                                (
+                                                                                                    p
+                                                                                                ) =>
+                                                                                                    p._id ===
+                                                                                                    post._id
+                                                                                                        ? {
+                                                                                                              ...p,
+                                                                                                              comments:
+                                                                                                                  [
+                                                                                                                      ...(p.comments ||
+                                                                                                                          []),
+                                                                                                                      data,
+                                                                                                                  ],
+                                                                                                          }
+                                                                                                        : p
+                                                                                            )
+                                                                                    );
+                                                                                    setCommentDrafts(
+                                                                                        (prev) => ({
+                                                                                            ...prev,
+                                                                                            [post._id]:
+                                                                                                "",
+                                                                                        })
+                                                                                    );
+                                                                                } catch (error) {
+                                                                                    const errorMessage =
+                                                                                        error
+                                                                                            .response
+                                                                                            ?.data
+                                                                                            ?.message ||
+                                                                                        error.message ||
+                                                                                        "Không thể thêm bình luận";
+                                                                                    alert(
+                                                                                        errorMessage
+                                                                                    );
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            Gửi
+                                                                        </button>
+                                                                    </div>
+                                                                </>
+                                                            )}
 
-                                                        {isEditingPost && (
-                                                            <form onSubmit={handleUpdatePost} className="mt-3">
-                                                                <div className="mb-3">
-                                                                    <label className="form-label">Nội dung</label>
-                                                                    <textarea
-                                                                        className="form-control"
-                                                                        rows={3}
-                                                                        value={editContent}
-                                                                        onChange={(e) => setEditContent(e.target.value)}
-                                                                    />
-                                                                </div>
-                                                                {post.media?.length ? renderEditMedia(post) : null}
-                                                                <div className="mb-3">
-                                                                    <label className="form-label">Thêm ảnh/video</label>
-                                                                    <input
-                                                                        type="file"
-                                                                        multiple
-                                                                        accept="image/*,video/*"
-                                                                        ref={editFileInputRef}
-                                                                        className="form-control"
-                                                                        onChange={(e) =>
-                                                                            setEditFiles((prev) => [
-                                                                                ...prev,
-                                                                                ...Array.from(e.target.files || []),
-                                                                            ])
-                                                                        }
-                                                                    />
-                                                                    {renderNewFilesPreview(editFiles, setEditFiles)}
-                                                                </div>
-                                                                <div className="d-flex gap-2">
-                                                                    <button type="submit" className="btn btn-primary">
-                                                                        Lưu thay đổi
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-outline-secondary"
-                                                                        onClick={resetEditForm}
-                                                                    >
-                                                                        Hủy
-                                                                    </button>
-                                                                </div>
-                                                            </form>
-                                                        )}
+                                                            {isEditingPost && (
+                                                                <form
+                                                                    onSubmit={handleUpdatePost}
+                                                                    className="mt-3"
+                                                                >
+                                                                    <div className="mb-3">
+                                                                        <label className="form-label">
+                                                                            Nội dung
+                                                                        </label>
+                                                                        <textarea
+                                                                            className="form-control"
+                                                                            rows={3}
+                                                                            value={editContent}
+                                                                            onChange={(e) =>
+                                                                                setEditContent(
+                                                                                    e.target.value
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                    </div>
+                                                                    {post.media?.length
+                                                                        ? renderEditMedia(post)
+                                                                        : null}
+                                                                    <div className="mb-3">
+                                                                        <label className="form-label">
+                                                                            Add image/video
+                                                                        </label>
+                                                                        <input
+                                                                            type="file"
+                                                                            multiple
+                                                                            accept="image/*,video/*"
+                                                                            ref={editFileInputRef}
+                                                                            className="form-control"
+                                                                            onChange={(e) =>
+                                                                                setEditFiles(
+                                                                                    (prev) => [
+                                                                                        ...prev,
+                                                                                        ...Array.from(
+                                                                                            e.target
+                                                                                                .files ||
+                                                                                                []
+                                                                                        ),
+                                                                                    ]
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                        {renderNewFilesPreview(
+                                                                            editFiles,
+                                                                            setEditFiles
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="d-flex gap-2">
+                                                                        <button
+                                                                            type="submit"
+                                                                            className="btn btn-primary"
+                                                                        >
+                                                                            Save changes
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary"
+                                                                            onClick={resetEditForm}
+                                                                        >
+                                                                            Cancel
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
             </main>
 
             {/* Avatar Change Modal */}
@@ -1309,7 +1551,7 @@ function UserProfile() {
                                                     width: "200px",
                                                     height: "200px",
                                                     objectFit: "cover",
-                                                    border: "4px solid #0d6efd",
+                                                    border: "4px solid #2196F3",
                                                 }}
                                             />
                                         ) : userData.avatar ? (
@@ -1321,7 +1563,7 @@ function UserProfile() {
                                                     width: "200px",
                                                     height: "200px",
                                                     objectFit: "cover",
-                                                    border: "4px solid #0d6efd",
+                                                    border: "4px solid #2196F3",
                                                 }}
                                             />
                                         ) : (
@@ -1331,8 +1573,8 @@ function UserProfile() {
                                                     width: "200px",
                                                     height: "200px",
                                                     background:
-                                                        "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)",
-                                                    border: "4px solid #0d6efd",
+                                                        "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
+                                                    border: "4px solid #2196F3",
                                                 }}
                                             >
                                                 <span
@@ -1381,14 +1623,14 @@ function UserProfile() {
                                         }}
                                         onMouseEnter={(e) => {
                                             if (!uploadingAvatar) {
-                                                e.currentTarget.style.background = "#0d6efd";
+                                                e.currentTarget.style.background = "#2196F3";
                                                 e.currentTarget.style.color = "white";
                                             }
                                         }}
                                         onMouseLeave={(e) => {
                                             if (!uploadingAvatar) {
                                                 e.currentTarget.style.background = "transparent";
-                                                e.currentTarget.style.color = "#0d6efd";
+                                                e.currentTarget.style.color = "#2196F3";
                                             }
                                         }}
                                     >
@@ -1432,12 +1674,12 @@ function UserProfile() {
                                                     className="spinner-border spinner-border-sm me-2"
                                                     role="status"
                                                 ></span>
-                                                Đang upload...
+                                                Uploading...
                                             </>
                                         ) : (
                                             <>
                                                 <i className="bi bi-check-circle me-2"></i>
-                                                Lưu ảnh
+                                                Save image
                                             </>
                                         )}
                                     </button>
@@ -1489,8 +1731,9 @@ function UserProfile() {
                                     <input
                                         type="password"
                                         name="currentPassword"
-                                        className={`form-control form-control-lg ${passwordErrors.currentPassword ? "is-invalid" : ""
-                                            }`}
+                                        className={`form-control form-control-lg ${
+                                            passwordErrors.currentPassword ? "is-invalid" : ""
+                                        }`}
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.currentPassword}
                                         onChange={handlePasswordChange}
@@ -1513,8 +1756,9 @@ function UserProfile() {
                                     <input
                                         type="password"
                                         name="newPassword"
-                                        className={`form-control form-control-lg ${passwordErrors.newPassword ? "is-invalid" : ""
-                                            }`}
+                                        className={`form-control form-control-lg ${
+                                            passwordErrors.newPassword ? "is-invalid" : ""
+                                        }`}
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.newPassword}
                                         onChange={handlePasswordChange}
@@ -1537,8 +1781,9 @@ function UserProfile() {
                                     <input
                                         type="password"
                                         name="confirmPassword"
-                                        className={`form-control form-control-lg ${passwordErrors.confirmPassword ? "is-invalid" : ""
-                                            }`}
+                                        className={`form-control form-control-lg ${
+                                            passwordErrors.confirmPassword ? "is-invalid" : ""
+                                        }`}
                                         style={{ borderRadius: "10px", borderWidth: "2px" }}
                                         value={passwordData.confirmPassword}
                                         onChange={handlePasswordChange}

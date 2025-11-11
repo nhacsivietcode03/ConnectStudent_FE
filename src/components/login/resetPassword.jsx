@@ -13,6 +13,8 @@ function ResetPasswordScreen() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        document.title = "Reset Password - ConnectStudent";
+
         // Get email, otpToken and otpCode from localStorage
         const savedEmail = localStorage.getItem("resetPasswordEmail");
         const savedToken = localStorage.getItem("resetPasswordOtpToken");
@@ -94,7 +96,7 @@ function ResetPasswordScreen() {
                             <div className="d-flex flex-row mt-2 align-items-center">
                                 <i
                                     className="fas fa-key fa-3x me-3"
-                                    style={{ color: "#ff6219" }}
+                                    style={{ color: "#2196F3" }}
                                 ></i>
                                 <span className="h1 fw-bold mb-0">Reset Password</span>
                             </div>

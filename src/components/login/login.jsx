@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 function LoginScreen() {
+    useEffect(() => {
+        document.title = "Login - ConnectStudent";
+    }, []);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -49,9 +52,9 @@ function LoginScreen() {
                             <div className="d-flex flex-row mt-2 align-items-center">
                                 <i
                                     className="fas fa-cubes fa-3x me-3"
-                                    style={{ color: "#ff6219" }}
+                                    style={{ color: "#2196F3" }}
                                 ></i>
-                                <span className="h1 fw-bold mb-0" style={{ color: "#0d6efd" }}>
+                                <span className="h1 fw-bold mb-0" style={{ color: "#2196F3" }}>
                                     ConnectStudent
                                 </span>
                             </div>
@@ -101,7 +104,7 @@ function LoginScreen() {
                                     className="btn btn-primary btn-lg btn-block mb-4 px-5 w-100"
                                     type="submit"
                                     disabled={loading}
-                                    style={{ backgroundColor: "#0d6efd", borderColor: "#0d6efd" }}
+                                    style={{ backgroundColor: "#2196F3", borderColor: "#2196F3" }}
                                 >
                                     {loading ? "Login loading..." : "Login"}
                                 </button>

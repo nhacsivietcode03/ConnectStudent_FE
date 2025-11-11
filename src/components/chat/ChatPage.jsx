@@ -12,6 +12,8 @@ const ChatPage = () => {
     const conversationIdFromUrl = searchParams.get("conversationId");
 
     useEffect(() => {
+        document.title = "Messages - ConnectStudent";
+
         // If conversationId is in URL, load that conversation
         if (conversationIdFromUrl) {
             loadConversationFromId(conversationIdFromUrl);
@@ -56,10 +58,10 @@ const ChatPage = () => {
                 <button
                     className="chat-back-button"
                     onClick={() => navigate("/")}
-                    title="Quay về trang chủ"
+                    title="Back to home"
                 >
                     <i className="bi bi-arrow-left"></i>
-                    <span>Trang chủ</span>
+                    <span>Home</span>
                 </button>
             </div>
             <ChatList

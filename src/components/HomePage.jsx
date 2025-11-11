@@ -1,9 +1,14 @@
 import { useAuth } from "../contexts/AuthContext";
 import AdminHomePage from "./admin/adminHomePage";
 import UserHomePage from "./user/userHomePage";
+import { useEffect } from "react";
 
 function HomePage() {
     const { user, isAuthenticated, loading } = useAuth();
+
+    useEffect(() => {
+        document.title = "Home - ConnectStudent";
+    }, []);
 
     if (loading) {
         return (
@@ -28,4 +33,3 @@ function HomePage() {
 }
 
 export default HomePage;
-

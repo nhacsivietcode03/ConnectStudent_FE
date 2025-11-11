@@ -12,6 +12,8 @@ function OTP() {
     const { register } = useAuth();
 
     useEffect(() => {
+        document.title = "Verify OTP - ConnectStudent";
+
         // Get email and otpToken from localStorage
         const savedEmail = localStorage.getItem("registrationEmail");
         const savedToken = localStorage.getItem("otpToken");
@@ -51,7 +53,7 @@ function OTP() {
         const result = await register({
             ...formData,
             otpCode: otpCode,
-            otpToken: otpToken
+            otpToken: otpToken,
         });
 
         if (result.success) {
@@ -102,12 +104,9 @@ function OTP() {
                             <div className="text-center mb-4">
                                 <i
                                     className="fas fa-shield-alt fa-3x mb-3"
-                                    style={{ color: "#ff6219" }}
+                                    style={{ color: "#2196F3" }}
                                 ></i>
-                                <h5
-                                    className="fw-normal pb-3"
-                                    style={{ letterSpacing: "1px" }}
-                                >
+                                <h5 className="fw-normal pb-3" style={{ letterSpacing: "1px" }}>
                                     Enter Verification Code
                                 </h5>
                                 {email && (
@@ -153,7 +152,7 @@ function OTP() {
 
                             <div className="text-center">
                                 <button
-                                    className="btn btn-dark btn-lg px-5 mb-3 w-100"
+                                    className="btn btn-primary btn-lg px-5 mb-3 w-100"
                                     type="submit"
                                     disabled={otpCode.length !== 6 || loading}
                                 >

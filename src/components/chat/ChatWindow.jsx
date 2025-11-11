@@ -226,9 +226,9 @@ const ChatWindow = ({ conversation }) => {
         return (
             <div className="chat-window empty">
                 <div className="empty-state">
-                    <p>Chọn một cuộc trò chuyện để bắt đầu</p>
+                    <p>Select a conversation to start</p>
                     <p style={{ fontSize: "14px", marginTop: "12px", opacity: 0.7 }}>
-                        Hoặc tìm kiếm người dùng mới để nhắn tin
+                        Or search for new users to message
                     </p>
                 </div>
             </div>
@@ -251,7 +251,7 @@ const ChatWindow = ({ conversation }) => {
                     <div>
                         <div className="username">{otherUser?.username || "Unknown"}</div>
                         {isTyping && typingUser && (
-                            <div className="typing-indicator">{typingUser} đang nhập...</div>
+                            <div className="typing-indicator">{typingUser} is typing...</div>
                         )}
                     </div>
                 </div>
@@ -296,13 +296,13 @@ const ChatWindow = ({ conversation }) => {
                 <input
                     type="text"
                     className="form-control"
-                    placeholder="Nhập tin nhắn..."
+                    placeholder="Type a message..."
                     value={newMessage}
                     onChange={handleTyping}
                     autoComplete="off"
                 />
                 <button type="submit" disabled={!newMessage.trim()}>
-                    Gửi
+                    Send
                 </button>
             </form>
         </div>

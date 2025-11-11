@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 function ForgotPasswordScreen() {
+    useEffect(() => {
+        document.title = "Forgot Password - ConnectStudent";
+    }, []);
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -51,7 +54,7 @@ function ForgotPasswordScreen() {
                             <div className="d-flex flex-row mt-2 align-items-center">
                                 <i
                                     className="fas fa-key fa-3x me-3"
-                                    style={{ color: "#ff6219" }}
+                                    style={{ color: "#2196F3" }}
                                 ></i>
                                 <span className="h1 fw-bold mb-0">Forgot Password</span>
                             </div>
@@ -89,7 +92,7 @@ function ForgotPasswordScreen() {
                                 </div>
 
                                 <button
-                                    className="btn btn-dark btn-lg btn-block mb-4 px-5 w-100"
+                                    className="btn btn-primary btn-lg btn-block mb-4 px-5 w-100"
                                     type="submit"
                                     disabled={loading}
                                 >
@@ -111,4 +114,3 @@ function ForgotPasswordScreen() {
 }
 
 export default ForgotPasswordScreen;
-

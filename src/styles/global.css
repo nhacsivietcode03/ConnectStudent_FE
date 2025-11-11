@@ -1,0 +1,164 @@
+/* Override Bootstrap Primary Color to Blue */
+:root {
+    --bs-primary: #2196F3;
+    --bs-primary-rgb: 33, 150, 243;
+    --bs-primary-dark: #1976D2;
+    --bs-primary-light: #64B5F6;
+}
+
+/* Primary Background */
+.bg-primary {
+    background-color: #2196F3 !important;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+}
+
+/* Primary Text */
+.text-primary {
+    color: #2196F3 !important;
+}
+
+/* Primary Buttons */
+.btn-primary {
+    background-color: #2196F3 !important;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+    border-color: #2196F3 !important;
+    color: white !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #1976D2 !important;
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%) !important;
+    border-color: #1976D2 !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.btn-primary:disabled {
+    background-color: #90CAF9 !important;
+    border-color: #90CAF9 !important;
+    opacity: 0.6;
+}
+
+/* Outline Primary Buttons */
+.btn-outline-primary {
+    color: #2196F3 !important;
+    border-color: #2196F3 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: #2196F3 !important;
+    border-color: #2196F3 !important;
+    color: white !important;
+}
+
+/* Primary Links */
+a.text-primary,
+a.text-primary:hover,
+a.text-primary:focus {
+    color: #2196F3 !important;
+}
+
+/* Primary Badge */
+.badge.bg-primary {
+    background-color: #2196F3 !important;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+}
+
+/* Primary Border */
+.border-primary {
+    border-color: #2196F3 !important;
+}
+
+/* Primary Alert */
+.alert-primary {
+    background-color: rgba(33, 150, 243, 0.1) !important;
+    border-color: #2196F3 !important;
+    color: #1976D2 !important;
+}
+
+/* Primary Card Header */
+.card-header.bg-primary {
+    background-color: #2196F3 !important;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+}
+
+/* Primary Progress Bar */
+.progress-bar.bg-primary {
+    background-color: #2196F3 !important;
+    background: linear-gradient(90deg, #2196F3 0%, #1976D2 100%) !important;
+}
+
+/* Primary List Group */
+.list-group-item.active {
+    background-color: #2196F3 !important;
+    border-color: #2196F3 !important;
+}
+
+/* Primary Nav Pills */
+.nav-pills .nav-link.active {
+    background-color: #2196F3 !important;
+}
+
+/* Primary Pagination */
+.page-item.active .page-link {
+    background-color: #2196F3 !important;
+    border-color: #2196F3 !important;
+}
+
+.page-link {
+    color: #2196F3 !important;
+}
+
+.page-link:hover {
+    color: #1976D2 !important;
+}
+
+/* Primary Dropdown */
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: #2196F3 !important;
+}
+
+/* Primary Form Controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: #2196F3 !important;
+    box-shadow: 0 0 0 0.25rem rgba(33, 150, 243, 0.25) !important;
+}
+
+.form-check-input:checked {
+    background-color: #2196F3 !important;
+    border-color: #2196F3 !important;
+}
+
+/* Primary Spinner */
+.spinner-border-primary {
+    border-color: #2196F3 !important;
+}
+
+/* Custom Primary Colors for specific elements */
+.rounded-circle.bg-primary {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+}
+
+/* Login Page Specific */
+.login-page .text-primary {
+    color: #2196F3 !important;
+}
+
+/* Header Specific */
+header.bg-primary {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+}
+
+/* Smooth Transitions */
+.btn-primary,
+.btn-outline-primary,
+.bg-primary {
+    transition: all 0.3s ease;
+}

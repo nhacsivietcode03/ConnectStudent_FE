@@ -14,13 +14,13 @@ function AdminHomePage() {
         page: 1,
         limit: 10,
         total: 0,
-        pages: 0
+        pages: 0,
     });
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("");
     const [editingUser, setEditingUser] = useState(null);
     const [editForm, setEditForm] = useState({
-        role: ""
+        role: "",
     });
     const [showAddModal, setShowAddModal] = useState(false);
     const [addForm, setAddForm] = useState({
@@ -28,7 +28,7 @@ function AdminHomePage() {
         email: "",
         password: "",
         role: "student",
-        major: ""
+        major: "",
     });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
@@ -40,6 +40,8 @@ function AdminHomePage() {
     const [userToUnban, setUserToUnban] = useState(null);
 
     useEffect(() => {
+        document.title = "Admin - ConnectStudent";
+
         if (!isAuthenticated) {
             navigate("/login");
             return;
@@ -72,7 +74,7 @@ function AdminHomePage() {
                 page: pagination.page,
                 limit: pagination.limit,
                 search: search,
-                role: roleFilter
+                role: roleFilter,
             });
 
             if (response.success) {
@@ -118,7 +120,11 @@ function AdminHomePage() {
                 alert(response.message || "Failed to delete user");
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || "Failed to delete user";
+            const errorMessage =
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                err.message ||
+                "Failed to delete user";
             alert(`Error: ${errorMessage}`);
         }
     };
@@ -179,7 +185,11 @@ function AdminHomePage() {
                 alert(response.message || "Failed to unban user");
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || "Failed to unban user";
+            const errorMessage =
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                err.message ||
+                "Failed to unban user";
             alert(`Error: ${errorMessage}`);
         }
     };
@@ -189,13 +199,13 @@ function AdminHomePage() {
         setUserToUnban(null);
     };
 
-    const handleExport = async (format = 'csv') => {
+    const handleExport = async (format = "csv") => {
         try {
             const blob = await adminAPI.exportUsers(format);
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const a = document.createElement("a");
             a.href = url;
-            a.download = `users_${new Date().toISOString().split('T')[0]}.${format}`;
+            a.download = `users_${new Date().toISOString().split("T")[0]}.${format}`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -208,7 +218,7 @@ function AdminHomePage() {
     const handleEdit = (user) => {
         setEditingUser(user._id);
         setEditForm({
-            role: user.role || ""
+            role: user.role || "",
         });
     };
 
@@ -230,11 +240,9 @@ function AdminHomePage() {
     const handleCancelEdit = () => {
         setEditingUser(null);
         setEditForm({
-            role: ""
+            role: "",
         });
     };
-
-
 
     const handleAddUser = () => {
         setShowAddModal(true);
@@ -243,7 +251,7 @@ function AdminHomePage() {
             email: "",
             password: "",
             role: "student",
-            major: ""
+            major: "",
         });
     };
 
@@ -268,7 +276,7 @@ function AdminHomePage() {
                     email: "",
                     password: "",
                     role: "student",
-                    major: ""
+                    major: "",
                 });
                 fetchUsers();
             } else {
@@ -286,11 +294,9 @@ function AdminHomePage() {
             email: "",
             password: "",
             role: "student",
-            major: ""
+            major: "",
         });
     };
-
-
 
     const generatePassword = () => {
         // Generate a random 8-character password
@@ -351,17 +357,11 @@ function AdminHomePage() {
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h2>User Management</h2>
                     <div>
-                        <button
-                            className="btn btn-info me-2"
-                            onClick={() => handleExport('csv')}
-                        >
+                        <button className="btn btn-info me-2" onClick={() => handleExport("csv")}>
                             <i className="bi bi-download me-2"></i>
                             Export CSV
                         </button>
-                        <button
-                            className="btn btn-success"
-                            onClick={handleAddUser}
-                        >
+                        <button className="btn btn-success" onClick={handleAddUser}>
                             <i className="bi bi-plus-circle me-2"></i>
                             Add Account
                         </button>
@@ -397,10 +397,7 @@ function AdminHomePage() {
                                 </select>
                             </div>
                             <div className="col-md-3">
-                                <button
-                                    className="btn btn-primary w-100"
-                                    onClick={handleSearch}
-                                >
+                                <button className="btn btn-primary w-100" onClick={handleSearch}>
                                     Search
                                 </button>
                             </div>
@@ -457,31 +454,51 @@ function AdminHomePage() {
                                                                     onChange={(e) =>
                                                                         setEditForm({
                                                                             ...editForm,
-                                                                            role: e.target.value
+                                                                            role: e.target.value,
                                                                         })
                                                                     }
-                                                                    disabled={user._id === currentUser?._id}
-                                                                    title={user._id === currentUser?._id ? "You cannot edit your own role" : ""}
+                                                                    disabled={
+                                                                        user._id ===
+                                                                        currentUser?._id
+                                                                    }
+                                                                    title={
+                                                                        user._id ===
+                                                                        currentUser?._id
+                                                                            ? "You cannot edit your own role"
+                                                                            : ""
+                                                                    }
                                                                 >
-                                                                    <option value="student">Student</option>
-                                                                    <option value="admin">Admin</option>
+                                                                    <option value="student">
+                                                                        Student
+                                                                    </option>
+                                                                    <option value="admin">
+                                                                        Admin
+                                                                    </option>
                                                                 </select>
                                                             </td>
                                                             <td>
                                                                 {user.isBanned === true ? (
-                                                                    <span className="badge bg-warning">Banned</span>
+                                                                    <span className="badge bg-warning">
+                                                                        Banned
+                                                                    </span>
                                                                 ) : (
-                                                                    <span className="badge bg-success">Active</span>
+                                                                    <span className="badge bg-success">
+                                                                        Active
+                                                                    </span>
                                                                 )}
                                                             </td>
                                                             <td>{user.major || "N/A"}</td>
                                                             <td>
-                                                                {new Date(user.createdAt).toLocaleDateString()}
+                                                                {new Date(
+                                                                    user.createdAt
+                                                                ).toLocaleDateString()}
                                                             </td>
                                                             <td>
                                                                 <button
                                                                     className="btn btn-sm btn-success me-1"
-                                                                    onClick={() => handleUpdate(user._id)}
+                                                                    onClick={() =>
+                                                                        handleUpdate(user._id)
+                                                                    }
                                                                 >
                                                                     Save
                                                                 </button>
@@ -499,31 +516,41 @@ function AdminHomePage() {
                                                             <td>{user.email}</td>
                                                             <td>
                                                                 <span
-                                                                    className={`badge ${user.role === "admin"
-                                                                        ? "bg-danger"
-                                                                        : "bg-primary"
-                                                                        }`}
+                                                                    className={`badge ${
+                                                                        user.role === "admin"
+                                                                            ? "bg-danger"
+                                                                            : "bg-primary"
+                                                                    }`}
                                                                 >
                                                                     {user.role}
                                                                 </span>
                                                             </td>
                                                             <td>
                                                                 {user.isBanned === true ? (
-                                                                    <span className="badge bg-warning">Banned</span>
+                                                                    <span className="badge bg-warning">
+                                                                        Banned
+                                                                    </span>
                                                                 ) : (
-                                                                    <span className="badge bg-success">Active</span>
+                                                                    <span className="badge bg-success">
+                                                                        Active
+                                                                    </span>
                                                                 )}
                                                             </td>
                                                             <td>{user.major || "N/A"}</td>
                                                             <td>
-                                                                {new Date(user.createdAt).toLocaleDateString()}
+                                                                {new Date(
+                                                                    user.createdAt
+                                                                ).toLocaleDateString()}
                                                             </td>
                                                             <td>
-                                                                {String(user._id) !== String(currentUser?._id) && (
+                                                                {String(user._id) !==
+                                                                    String(currentUser?._id) && (
                                                                     <>
                                                                         <button
                                                                             className="btn btn-sm btn-primary me-1"
-                                                                            onClick={() => handleEdit(user)}
+                                                                            onClick={() =>
+                                                                                handleEdit(user)
+                                                                            }
                                                                         >
                                                                             Edit
                                                                         </button>
@@ -531,7 +558,11 @@ function AdminHomePage() {
                                                                             <button
                                                                                 type="button"
                                                                                 className="btn btn-sm btn-warning me-1"
-                                                                                onClick={() => handleUnbanClick(user)}
+                                                                                onClick={() =>
+                                                                                    handleUnbanClick(
+                                                                                        user
+                                                                                    )
+                                                                                }
                                                                             >
                                                                                 Unban
                                                                             </button>
@@ -539,7 +570,11 @@ function AdminHomePage() {
                                                                             <button
                                                                                 type="button"
                                                                                 className="btn btn-sm btn-warning me-1"
-                                                                                onClick={() => handleBanClick(user)}
+                                                                                onClick={() =>
+                                                                                    handleBanClick(
+                                                                                        user
+                                                                                    )
+                                                                                }
                                                                             >
                                                                                 Ban
                                                                             </button>
@@ -547,7 +582,11 @@ function AdminHomePage() {
                                                                         <button
                                                                             type="button"
                                                                             className="btn btn-sm btn-danger"
-                                                                            onClick={() => handleDeleteClick(user)}
+                                                                            onClick={() =>
+                                                                                handleDeleteClick(
+                                                                                    user
+                                                                                )
+                                                                            }
                                                                         >
                                                                             Delete
                                                                         </button>
@@ -567,14 +606,16 @@ function AdminHomePage() {
                                     <nav>
                                         <ul className="pagination mb-0">
                                             <li
-                                                className={`page-item ${pagination.page === 1 ? "disabled" : ""}`}
+                                                className={`page-item ${
+                                                    pagination.page === 1 ? "disabled" : ""
+                                                }`}
                                             >
                                                 <button
                                                     className="page-link"
                                                     onClick={() =>
                                                         setPagination({
                                                             ...pagination,
-                                                            page: pagination.page - 1
+                                                            page: pagination.page - 1,
                                                         })
                                                     }
                                                     disabled={pagination.page === 1}
@@ -585,15 +626,16 @@ function AdminHomePage() {
                                             {[...Array(pagination.pages)].map((_, i) => (
                                                 <li
                                                     key={i + 1}
-                                                    className={`page-item ${pagination.page === i + 1 ? "active" : ""
-                                                        }`}
+                                                    className={`page-item ${
+                                                        pagination.page === i + 1 ? "active" : ""
+                                                    }`}
                                                 >
                                                     <button
                                                         className="page-link"
                                                         onClick={() =>
                                                             setPagination({
                                                                 ...pagination,
-                                                                page: i + 1
+                                                                page: i + 1,
                                                             })
                                                         }
                                                     >
@@ -602,15 +644,18 @@ function AdminHomePage() {
                                                 </li>
                                             ))}
                                             <li
-                                                className={`page-item ${pagination.page === pagination.pages ? "disabled" : ""
-                                                    }`}
+                                                className={`page-item ${
+                                                    pagination.page === pagination.pages
+                                                        ? "disabled"
+                                                        : ""
+                                                }`}
                                             >
                                                 <button
                                                     className="page-link"
                                                     onClick={() =>
                                                         setPagination({
                                                             ...pagination,
-                                                            page: pagination.page + 1
+                                                            page: pagination.page + 1,
                                                         })
                                                     }
                                                     disabled={pagination.page === pagination.pages}
@@ -635,7 +680,10 @@ function AdminHomePage() {
                     tabIndex="-1"
                     onClick={handleCancelAdd}
                 >
-                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                    <div
+                        className="modal-dialog modal-dialog-centered"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Add New Account</h5>
@@ -655,7 +703,9 @@ function AdminHomePage() {
                                         className="form-control"
                                         id="addUsername"
                                         value={addForm.username}
-                                        onChange={(e) => setAddForm({ ...addForm, username: e.target.value })}
+                                        onChange={(e) =>
+                                            setAddForm({ ...addForm, username: e.target.value })
+                                        }
                                         placeholder="Enter full name"
                                     />
                                 </div>
@@ -668,7 +718,9 @@ function AdminHomePage() {
                                         className="form-control"
                                         id="addEmail"
                                         value={addForm.email}
-                                        onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                                        onChange={(e) =>
+                                            setAddForm({ ...addForm, email: e.target.value })
+                                        }
                                         placeholder="Enter email"
                                         required
                                     />
@@ -683,7 +735,9 @@ function AdminHomePage() {
                                             className="form-control"
                                             id="addPassword"
                                             value={addForm.password}
-                                            onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                                            onChange={(e) =>
+                                                setAddForm({ ...addForm, password: e.target.value })
+                                            }
                                             placeholder="Enter password (min 6 characters)"
                                             minLength={6}
                                             required
@@ -706,7 +760,9 @@ function AdminHomePage() {
                                         className="form-select"
                                         id="addRole"
                                         value={addForm.role}
-                                        onChange={(e) => setAddForm({ ...addForm, role: e.target.value })}
+                                        onChange={(e) =>
+                                            setAddForm({ ...addForm, role: e.target.value })
+                                        }
                                     >
                                         <option value="student">Student</option>
                                         <option value="admin">Admin</option>
@@ -721,7 +777,9 @@ function AdminHomePage() {
                                         className="form-control"
                                         id="addMajor"
                                         value={addForm.major}
-                                        onChange={(e) => setAddForm({ ...addForm, major: e.target.value })}
+                                        onChange={(e) =>
+                                            setAddForm({ ...addForm, major: e.target.value })
+                                        }
                                         placeholder="Enter major"
                                     />
                                 </div>
@@ -755,7 +813,10 @@ function AdminHomePage() {
                     tabIndex="-1"
                     onClick={handleCancelDelete}
                 >
-                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                    <div
+                        className="modal-dialog modal-dialog-centered"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title text-danger">Confirm Delete</h5>
@@ -768,13 +829,17 @@ function AdminHomePage() {
                             <div className="modal-body">
                                 <p>Are you sure you want to delete this user?</p>
                                 <div className="alert alert-warning">
-                                    <strong>User Information:</strong><br />
-                                    <strong>Name:</strong> {userToDelete.username || "N/A"}<br />
-                                    <strong>Email:</strong> {userToDelete.email}<br />
+                                    <strong>User Information:</strong>
+                                    <br />
+                                    <strong>Name:</strong> {userToDelete.username || "N/A"}
+                                    <br />
+                                    <strong>Email:</strong> {userToDelete.email}
+                                    <br />
                                     <strong>Role:</strong> {userToDelete.role}
                                 </div>
-                                <p className="text-danger"><strong>This action cannot be undone!</strong></p>
-
+                                <p className="text-danger">
+                                    <strong>This action cannot be undone!</strong>
+                                </p>
                             </div>
                             <div className="modal-footer">
                                 <button
@@ -809,7 +874,10 @@ function AdminHomePage() {
                         setBanReason("");
                     }}
                 >
-                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                    <div
+                        className="modal-dialog modal-dialog-centered"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title text-warning">Ban User</h5>
@@ -826,9 +894,12 @@ function AdminHomePage() {
                             <div className="modal-body">
                                 <p>Are you sure you want to ban this user?</p>
                                 <div className="alert alert-warning">
-                                    <strong>User Information:</strong><br />
-                                    <strong>Name:</strong> {userToBan.username || "N/A"}<br />
-                                    <strong>Email:</strong> {userToBan.email}<br />
+                                    <strong>User Information:</strong>
+                                    <br />
+                                    <strong>Name:</strong> {userToBan.username || "N/A"}
+                                    <br />
+                                    <strong>Email:</strong> {userToBan.email}
+                                    <br />
                                     <strong>Role:</strong> {userToBan.role}
                                 </div>
                                 <div className="mb-3">
@@ -878,7 +949,10 @@ function AdminHomePage() {
                     tabIndex="-1"
                     onClick={handleCancelUnban}
                 >
-                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                    <div
+                        className="modal-dialog modal-dialog-centered"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title text-success">Unban User</h5>
@@ -891,17 +965,24 @@ function AdminHomePage() {
                             <div className="modal-body">
                                 <p>Are you sure you want to unban this user?</p>
                                 <div className="alert alert-info">
-                                    <strong>User Information:</strong><br />
-                                    <strong>Name:</strong> {userToUnban.username || "N/A"}<br />
-                                    <strong>Email:</strong> {userToUnban.email}<br />
-                                    <strong>Role:</strong> {userToUnban.role}<br />
+                                    <strong>User Information:</strong>
+                                    <br />
+                                    <strong>Name:</strong> {userToUnban.username || "N/A"}
+                                    <br />
+                                    <strong>Email:</strong> {userToUnban.email}
+                                    <br />
+                                    <strong>Role:</strong> {userToUnban.role}
+                                    <br />
                                     {userToUnban.bannedReason && (
                                         <>
-                                            <strong>Ban Reason:</strong> {userToUnban.bannedReason}<br />
+                                            <strong>Ban Reason:</strong> {userToUnban.bannedReason}
+                                            <br />
                                         </>
                                     )}
                                 </div>
-                                <p className="text-success"><strong>This will restore all user privileges.</strong></p>
+                                <p className="text-success">
+                                    <strong>This will restore all user privileges.</strong>
+                                </p>
                             </div>
                             <div className="modal-footer">
                                 <button
@@ -923,10 +1004,8 @@ function AdminHomePage() {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }
 
 export default AdminHomePage;
-

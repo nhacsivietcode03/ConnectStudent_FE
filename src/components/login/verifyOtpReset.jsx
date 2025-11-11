@@ -10,6 +10,8 @@ function VerifyOtpResetScreen() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        document.title = "Verify OTP - ConnectStudent";
+
         // Get email and otpToken from localStorage
         const savedEmail = localStorage.getItem("resetPasswordEmail");
         const savedToken = localStorage.getItem("resetPasswordOtpToken");
@@ -44,10 +46,10 @@ function VerifyOtpResetScreen() {
             // For now, we'll just navigate to reset password
             // The actual verification will happen on the backend
             setSuccess("OTP verified successfully!");
-            
+
             // Save OTP code to localStorage
             localStorage.setItem("resetPasswordOtpCode", otpCode);
-            
+
             // Navigate to reset password page after 1 second
             setTimeout(() => {
                 navigate("/reset-password");
@@ -83,7 +85,7 @@ function VerifyOtpResetScreen() {
                             <div className="d-flex flex-row mt-2 align-items-center">
                                 <i
                                     className="fas fa-shield-alt fa-3x me-3"
-                                    style={{ color: "#ff6219" }}
+                                    style={{ color: "#2196F3" }}
                                 ></i>
                                 <span className="h1 fw-bold mb-0">Verify OTP</span>
                             </div>
@@ -145,4 +147,3 @@ function VerifyOtpResetScreen() {
 }
 
 export default VerifyOtpResetScreen;
-
